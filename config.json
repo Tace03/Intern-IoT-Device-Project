@@ -1,0 +1,15 @@
+{
+    "asset_id": 0,
+    "fastNoOfInternetAttemptsAllowed": 360,
+    "fast_packet_sent_interval": 1000,
+    "mads_auth_token": "n03d1jv2wlfuygsshssygugdugsssgvb",
+    "mads_url": "/iot/orgs/3/projects/70/gateways/28/data_dump",
+    "modbus_data_read_interval": 5000,
+    "modbus_BMS_ip": "192.168.0.50",
+    "modbus_BMS_slave_id": 1,
+    "modbus_ComAP_ip": "192.168.0.41",
+    "modbus_ComAP_slave_id": 1,
+    "noOfModbusAttemptsAllowed": 3,
+    "normalNoOfInternetAttemptsAllowed": 60,
+    "normal_packet_sent_interval": 6000
+}
