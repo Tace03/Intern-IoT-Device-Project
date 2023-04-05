@@ -29,8 +29,10 @@ typedef enum __attribute__((__packed__)) _packet_status
 
 typedef struct _system_config
 {
-    std::string modbus_ip;
-    int modbus_slave_id;
+    std::string modbus_BMS_ip;
+    int modbus_BMS_slave_id;
+      std::string modbus_ComAP_ip;
+    int modbus_ComAP_slave_id;
     int noOfModbusAttemptsAllowed;
     int modbus_data_read_interval;
     std::string mads_auth_token;

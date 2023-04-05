@@ -19,7 +19,6 @@
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 
 #include "httplib.h"
-
 #include "sql_queries.h"
 
 // g++ -o battery_main battery_main.cpp `pkg-config --cflags --libs libmodbus` -pthread -lsqlite3
@@ -33,11 +32,15 @@ string sendDataString;
 
 system_config sys_config;
 
+// For modbus communication
 modbus_t *mbBMS;
 modbus_t *mbComAP;
+
+// modbus port of the communiting device
 int mbBMSPort = 1502;
 int mbComAPPort = 502;
 uint16_t sensor_value[2] ={0};
+// For Checking if Modbus is connected for each device
 static bool isBMSModbusConn = false;
 static bool isComAPModbusConn = false;
 static bool isInternetConn = false;
@@ -99,6 +102,7 @@ httplib::Client cli("http://192.168.1.174:1234");
 
 #define SLAVE_ID 1
 
+// For reconnecting to Modbus, can ignore after settings are properly set.
 void reconnectToBMSModbus()
 {
     if(mbBMS!= NULL)
@@ -106,14 +110,15 @@ void reconnectToBMSModbus()
         modbus_close(mbBMS);
         modbus_free(mbBMS);
 
-        mbBMS = modbus_new_tcp(sys_config.modbus_ip.c_str(), mbBMSPort);
-        modbus_set_slave(mbBMS,sys_config.modbus_slave_id);
+        mbBMS = modbus_new_tcp(sys_config.modbus_BMS_ip.c_str(), mbBMSPort);
+        modbus_set_slave(mbBMS,sys_config.modbus_BMS_slave_id);
 
         if(mbBMS != NULL)
         {
-            if (modbus_connect(mbBMS) == -1) {
-            fprintf(stdout, "BMS Modbus reConnection failed: %s\n", modbus_strerror(errno));
-            isBMSModbusConn = false;
+            if (modbus_connect(mbBMS) == -1) 
+            {
+                fprintf(stdout, "BMS Modbus reConnection failed: %s\n", modbus_strerror(errno));
+                isBMSModbusConn = false;
             }
             else
             {
@@ -124,7 +129,6 @@ void reconnectToBMSModbus()
         {
             printf("Could not connect over BMS MODBUS TCP. \r\n");
         }
-        
     }
     else
     {
@@ -139,18 +143,19 @@ void reconnectToComAPModbus()
         modbus_close(mbComAP);
         modbus_free(mbComAP);
 
-        mbComAP = modbus_new_tcp(sys_config.modbus_ip.c_str(), mbComAPPort);
-        modbus_set_slave(mbComAP, sys_config.modbus_slave_id);
+        mbComAP = modbus_new_tcp(sys_config.modbus_ComAP_ip.c_str(), mbComAPPort);
+        modbus_set_slave(mbComAP, sys_config.modbus_ComAP_slave_id);
 
         if(mbComAP!= NULL)
         {
-            if (modbus_connect(mbComAP) == -1) {
-            fprintf(stdout, "ComAP Modbus reConnection failed: %s\n", modbus_strerror(errno));
-            isModbusConn = false;
+            if (modbus_connect(mbComAP) == -1) 
+            {
+                fprintf(stdout, "ComAP Modbus reConnection failed: %s\n", modbus_strerror(errno));
+                isComAPModbusConn = false;
             }
             else
             {
-                isModbusConn = true;
+                isComAPModbusConn = true;
             }
         }
         else
@@ -163,6 +168,7 @@ void reconnectToComAPModbus()
         printf("Do nothing to ComAP MODBUS, should come back later. \r\n");
     }
 }
+// End of modbus reconnection
 
 void getCurrentTime(void)
 {	
@@ -489,8 +495,7 @@ void probeBMSSensors()
                 {
                     mtx_curr_error.unlock();
                 }
-
-                printf("Probed Sensors, system uptime: [%ld] isModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isModbusConn, markToSent);
+                printf("Probed Sensors, system uptime: [%ld] isModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isBMSModbusConn, markToSent);
                 printSensorData(actual_sensor_data);
                 markToSent = 0;
                 memset(&latest_battery_data,0,sizeof(battery_data));
@@ -634,7 +639,7 @@ void probeComAPSensors()
                     mtx_curr_error.unlock();
                 }
 
-                printf("Probed Sensors, system uptime: [%ld] isModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isModbusConn, markToSent);
+                printf("Probed Sensors, system uptime: [%ld] isModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isComAPModbusConn, markToSent);
                 printSensorData(actual_sensor_data);
                 markToSent = 0;
                 memset(&latest_battery_data,0,sizeof(battery_data));
@@ -675,7 +680,7 @@ void setMarkToSent()
         mtx_mark_to_sent.unlock();
     }
 }
-
+// to send data, can ignore if task is not related to sending data.
 void sendSensorData()
 {
     while(1)
@@ -935,18 +940,20 @@ void save_system_config()
 void read_system_config()
 {
     json system_json_config;
-
-   cout<<"Reading"<<endl;
+    cout<<"Reading"<<endl;
     // read a JSON file
     std::ifstream i("/home/pi/Desktop/modbustcplogger/config.json");
     i >> system_json_config;
     
-    string modbus_ip = system_json_config["modbus_ip"];
+    string modbus_BMS_ip = system_json_config["modbus_BMS_ip"];
+    string modbus_ComAP_ip = system_json_config["modbus_ComAP_ip"];
     string mads_auth_token = system_json_config["mads_auth_token"];
     string mads_url = system_json_config["mads_url"];
 
-    sys_config.modbus_ip = modbus_ip;
-    sys_config.modbus_slave_id = system_json_config["modbus_slave_id"];
+    sys_config.modbus_BMS_ip = modbus_BMS_ip;
+    sys_config.modbus_BMS_slave_id = system_json_config["modbus_BMS_slave_id"];
+    sys_config.modbus_ComAP_ip = modbus_ComAP_ip;
+    sys_config.modbus_ComAP_slave_id = system_json_config["modbus_ComAP_slave_id"];
     sys_config.noOfModbusAttemptsAllowed = system_json_config["noOfModbusAttemptsAllowed"];
     sys_config.modbus_data_read_interval = system_json_config["modbus_data_read_interval"];
     sys_config.mads_auth_token = mads_auth_token;
@@ -975,13 +982,11 @@ void createDBSpace()
             printf("Total records: [%d]\r\n",recordCount);
 
             long recentTimestamp = getRecentTimestamp(db);
-
             long oldTimestamp = recentTimestamp - timestampInterval;
 
             printf("Curr timestamp: [%ld], Old timestamp: [%ld]\r\n",recentTimestamp, oldTimestamp);
 
             int deleteRecordCount = getDeleteRecordCount(db, stmtDel, oldTimestamp);
-
             if(deleteRecordCount > 0)
             {
                 //delete 6 months data from now
