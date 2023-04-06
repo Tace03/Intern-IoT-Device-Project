@@ -15,7 +15,7 @@
 #include <thread>
 #include <mutex>
 #include <iostream>
-
+ 
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 
 #include "httplib.h"
@@ -84,6 +84,7 @@ std::mutex mtx_curr_error;
 std::mutex mtx_error_msg;
 
 uint16_t resCode = 0;
+uint16_t resCode2 = 0;
 
 // Code modified by SeowSK
 namespace madsPlt
@@ -122,7 +123,7 @@ void reconnectToBMSModbus()
             }
             else
             {
-		printf("BMS Modbus connection successful.");
+                printf("BMS Modbus connection successful.");
                 isBMSModbusConn = true;
             }
         }
@@ -150,13 +151,13 @@ void reconnectToComAPModbus()
         if(mbComAP!= NULL)
         {
             if (modbus_connect(mbComAP) == -1)
-	    {
-            	fprintf(stdout, "ComAP Modbus reConnection failed: %s\n", modbus_strerror(errno));
-            	isComAPModbusConn = false;
+            {
+                fprintf(stdout, "ComAP Modbus reConnection failed: %s\n", modbus_strerror(errno));
+                isComAPModbusConn = false;
             }
             else
             {
-		printf("ComAP Modbus connection successful.");
+                printf("ComAP Modbus connection successful.");
                 isComAPModbusConn = true;
             }
         }
@@ -230,19 +231,17 @@ void populateSensorConfiguration()
     sensor_configuration.push_back(new sensor_config(27,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.primary_discharge_relay)));
     sensor_configuration.push_back(new sensor_config(50,reg_type::HOLDING_REG,0.01f,&(latest_battery_data.bcu_state_of_charge)));
     sensor_configuration.push_back(new sensor_config(50,reg_type::HOLDING_REG,0.01f,&(latest_battery_data.state_of_charge))); 
-    
+
     sensor_configuration.push_back(new sensor_config(61,reg_type::HOLDING_REG,0.01f,&(latest_battery_data.pcs1_dc_volts))); 		    // Added on 11 Aug 21
     sensor_configuration.push_back(new sensor_config(62,reg_type::HOLDING_REG,0.01f,&(latest_battery_data.pcs1_dc_batt_current))); 	    // Added on 11 Aug 21
     sensor_configuration.push_back(new sensor_config(64,reg_type::HOLDING_REG,0.1f,&(latest_battery_data.pcs1_dc_inverter_power))); 	// Added on 11 Aug 21
-    
+
     sensor_configuration.push_back(new sensor_config(65,reg_type::HOLDING_REG,0.01f,&(latest_battery_data.pcs1_voltage)));
     sensor_configuration.push_back(new sensor_config(66,reg_type::HOLDING_REG,0.01f,&(latest_battery_data.pcs1_current)));
     sensor_configuration.push_back(new sensor_config(69,reg_type::HOLDING_REG,0.01f,&(latest_battery_data.pcs1_reactive_power)));
     sensor_configuration.push_back(new sensor_config(74,reg_type::HOLDING_REG,0.01f,&(latest_battery_data.pcs1_load_power)));
     sensor_configuration.push_back(new sensor_config(68,reg_type::HOLDING_REG,0.01f,&(latest_battery_data.pcs1_ac_supply_power)));
-    
-
-/*
+    /*
     sensor_configuration.push_back(new sensor_config(248,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.primary_charging_relay)));
     sensor_configuration.push_back(new sensor_config(250,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.primary_discharge_relay)));
     sensor_configuration.push_back(new sensor_config(252,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.primary_positive_pump)));
@@ -250,13 +249,13 @@ void populateSensorConfiguration()
 
     sensor_configuration.push_back(new sensor_config(316,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.system_mode)));  		    // Added on 11 Aug 21
     sensor_configuration.push_back(new sensor_config(318,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.system_alarm_status)));  	// Modified on 11 Aug 21
-    
+
     sensor_configuration.push_back(new sensor_config(340,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.balancing_valve)));
     sensor_configuration.push_back(new sensor_config(342,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.positive_valve)));
     sensor_configuration.push_back(new sensor_config(344,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.negative_valve)));
 
     sensor_configuration.push_back(new sensor_config(398,reg_type::INPUT_REG,0.01f,&(latest_battery_data.state_of_charge)));
-    
+
     sensor_configuration.push_back(new sensor_config(688,reg_type::INPUT_REG,1.0f,&(latest_battery_data.bcu_mode_status)));  		// Added on 11 Aug 21
 
     sensor_configuration.push_back(new sensor_config(690,reg_type::INPUT_REG,0.001f,&(latest_battery_data.bcu_voltage)));
@@ -279,17 +278,17 @@ void populateSensorConfiguration()
     sensor_configuration.push_back(new sensor_config(818,reg_type::INPUT_REG,0.01f,&(latest_battery_data.primary_stack_current)));
     sensor_configuration.push_back(new sensor_config(826,reg_type::INPUT_REG,0.01f,&(latest_battery_data.primary_stack_positive_pressure_sensor)));
     sensor_configuration.push_back(new sensor_config(828,reg_type::INPUT_REG,0.01f,&(latest_battery_data.primary_stack_negative_pressure_sensor)));
-    
+
     sensor_configuration.push_back(new sensor_config(830,reg_type::INPUT_REG,0.01f,&(latest_battery_data.positive_stack_pressure_delta)));  	//modified positive with primary on 11 Aug 21
     sensor_configuration.push_back(new sensor_config(924,reg_type::INPUT_REG,0.01f,&(latest_battery_data.b1_primary_stack_pressure_delta)));  	// Added on 11 Aug 21   
-    
+
     sensor_configuration.push_back(new sensor_config(1028,reg_type::INPUT_REG,0.01f,&(latest_battery_data.sensor_temp)));
     sensor_configuration.push_back(new sensor_config(1030,reg_type::INPUT_REG,0.01f,&(latest_battery_data.humidity)));
-    
+
     sensor_configuration.push_back(new sensor_config(1184,reg_type::INPUT_REG,0.001f,&(latest_battery_data.pcs1_dc_volts))); 		    // Added on 11 Aug 21
     sensor_configuration.push_back(new sensor_config(1186,reg_type::INPUT_REG,0.01f,&(latest_battery_data.pcs1_dc_batt_current))); 	    // Added on 11 Aug 21
     sensor_configuration.push_back(new sensor_config(1188,reg_type::INPUT_REG,0.01f,&(latest_battery_data.pcs1_dc_inverter_power))); 	// Added on 11 Aug 21
-    
+
     sensor_configuration.push_back(new sensor_config(1190,reg_type::INPUT_REG,0.01f,&(latest_battery_data.pcs1_voltage)));
     sensor_configuration.push_back(new sensor_config(1192,reg_type::INPUT_REG,0.01f,&(latest_battery_data.pcs1_current)));
     sensor_configuration.push_back(new sensor_config(1196,reg_type::INPUT_REG,0.01f,&(latest_battery_data.pcs1_reactive_power)));
@@ -310,55 +309,53 @@ void populateSensorConfiguration()
 
 void populateComAPConfiguration()
 {
-    comap_configuration.push_back(new sensor_config(43098,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.voltage_gain)));
-    comap_configuration.push_back(new sensor_config(43099,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.voltage_int)));
+    comap_configuration.push_back(new sensor_config(3098,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.voltage_gain)));
+    comap_configuration.push_back(new sensor_config(3099,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.voltage_int)));
 }
 
 void printSensorData(sensor_data data)
 {
-    // printf("bcu_leakage_sensor : [%f]\r\n",data.battery.bcu_leakage_sensor); // Added on 11 Aug 21
-    printf("Uptime : [%ld]\r\n",data.uptime);
-    printf("Timestamp : [%ld]\r\n",data.timestamp);
-
-    printf("markToSent : [%d]\r\n",markToSent);
-    printf("For debugging, BMS sensor data ends here.\r\n");
-    printf("voltage_gain : [%f]\r\n", data.battery.voltage_gain);
-    printf("voltage_int : [%f]\r\b", data.battery.voltage_int);
-/*
-    printf("bcu_leakage_sensor : [%d]\r\n",data.battery.bcu_leakage_sensor);		// Added on 11 Aug 21
-    printf("positive_tank_high_level_float : [%d]\r\n",data.battery.positive_tank_high_level_float);
-    printf("negative_tank_high_level_float : [%d]\r\n",data.battery.negative_tank_high_level_float);
-    printf("positive_tank_low_level_float : [%d]\r\n",data.battery.positive_tank_low_level_float);
-    printf("negative_tank_low_level_float : [%d]\r\n",data.battery.negative_tank_low_level_float);
-    printf("smoke_sensor : [%d]\r\n",data.battery.smoke_sensor);
-    printf("bcu_voltage : [%f]\r\n",data.battery.bcu_voltage);
-    printf("bcu_current : [%f]\r\n",data.battery.bcu_current);
-    printf("bcu_ocv : [%f]\r\n",data.battery.bcu_ocv);
-    printf("bcu_positive_tank_temp : [%f]\r\n",data.battery.bcu_positive_tank_temp);
-    printf("bcu_negative_tank_temp : [%f]\r\n",data.battery.bcu_negative_tank_temp);
-    printf("bcu_hydrogen_sensor : [%f]\r\n",data.battery.bcu_hydrogen_sensor);
-    printf("humidity : [%f]\r\n",data.battery.humidity);
-    printf("sensor_temp : [%f]\r\n",data.battery.sensor_temp);
-    printf("primary_stack_positive_pressure_sensor : [%f]\r\n",data.battery.primary_stack_positive_pressure_sensor);
-    printf("primary_stack_negative_pressure_sensor : [%f]\r\n",data.battery.primary_stack_negative_pressure_sensor);
-    printf("primary_positive_pump : [%1.0f]\r\n",data.battery.primary_positive_pump);
-    printf("primary_negative_pump : [%1.0f]\r\n",data.battery.primary_negative_pump);
-    printf("positive_valve : [%1.0f]\r\n",data.battery.positive_valve);
-    printf("negative_valve : [%1.0f]\r\n",data.battery.negative_valve);
-    printf("balancing_valve : [%1.0f]\r\n",data.battery.balancing_valve);
-    printf("primary_charging_relay : [%1.0f]\r\n",data.battery.primary_charging_relay);
-    printf("primary_discharge_relay : [%1.0f]\r\n",data.battery.primary_discharge_relay);
-    printf("state_of_charge : [%f]\r\n",data.battery.bcu_state_of_charge);   printf("pcs1_dc_volts : [%f]\r\n",data.battery.pcs1_dc_volts); // Added on 11 Aug 21
-    printf("pcs1_dc_batt_current : [%f]\r\n",data.battery.pcs1_dc_batt_current); 	    // Added on 11 Aug 21
-    printf("pcs1_dc_inverter_power : [%f]\r\n",data.battery.pcs1_dc_inverter_power); 	// Added on 11 Aug 21
-
-    printf("pcs1_voltage : [%f]\r\n",data.battery.pcs1_voltage);
-    printf("pcs1_current : [%f]\r\n",data.battery.pcs1_current);
-    printf("pcs1_reactive_power : [%f]\r\n",data.battery.pcs1_reactive_power);
-    printf("pcs1_load_power : [%f]\r\n",data.battery.pcs1_load_power);
-    printf("pcs1_ac_supply_power : [%f]\r\n",data.battery.pcs1_ac_supply_power);
-*/
-/*
+    std::cout << std::right;
+    std::cout << std::setfill('-');
+    std::cout << std::setw(45) << "Sensor Data" << std::endl;
+    std::cout << std::setfill(' ');
+    std::cout << std::left;
+    std::cout << std::setw(40) << "Uptime" << std::setw(15) << data.uptime << std::endl;
+    std::cout << std::setw(40) << "Timestamp" << std::setw(15) << data.timestamp << std::endl;
+    std::cout << std::setw(40) << "markToSent" << std::setw(15) << markToSent << std::endl;
+    std::cout << std::setw(40) << "bcu_leakage_sensor" << std::setw(15) << data.battery.bcu_leakage_sensor << std::endl;
+    std::cout << std::setw(40) << "positive_tank_high_level_float" << std::setw(15) << data.battery.positive_tank_high_level_float << std::endl;
+    std::cout << std::setw(40) << "negative_tank_high_level_float" << std::setw(15) << data.battery.negative_tank_high_level_float << std::endl;
+    std::cout << std::setw(40) << "positive_tank_low_level_float" << std::setw(15) << data.battery.positive_tank_low_level_float << std::endl;
+    std::cout << std::setw(40) << "negative_tank_low_level_float" << std::setw(15) << data.battery.negative_tank_low_level_float << std::endl;
+    std::cout << std::setw(40) << "smoke_sensor" << std::setw(15) << data.battery.smoke_sensor << std::endl;
+    std::cout << std::setw(40) << "bcu_voltage" << std::setw(15) << data.battery.bcu_voltage << std::endl;
+    std::cout << std::setw(40) << "bcu_current" << std::setw(15) << data.battery.bcu_current << std::endl;
+    std::cout << std::setw(40) << "bcu_ocv" << std::setw(15) << data.battery.bcu_ocv << std::endl;
+    std::cout << std::setw(40) << "bcu_positive_tank_temp" << std::setw(15) << data.battery.bcu_positive_tank_temp << std::endl;
+    std::cout << std::setw(40) << "bcu_negative_tank_temp" << std::setw(15) << data.battery.bcu_negative_tank_temp << std::endl;
+    std::cout << std::setw(40) << "bcu_hydrogen_sensor" << std::setw(15) << data.battery.bcu_hydrogen_sensor << std::endl;
+    std::cout << std::setw(40) << "humidity" << std::setw(15) << data.battery.humidity << std::endl;
+    std::cout << std::setw(40) << "sensor_temp" << std::setw(15) << data.battery.sensor_temp << std::endl;
+    std::cout << std::setw(40) << "primary_stack_positive_pressure_sensor" << std::setw(15) << data.battery.primary_stack_positive_pressure_sensor << std::endl;
+    std::cout << std::setw(40) << "primary_stack_negative_pressure_sensor" << std::setw(15) << data.battery.primary_stack_negative_pressure_sensor << std::endl;
+    std::cout << std::setw(40) << "primary_positive_pump" << std::setw(15) << data.battery.primary_positive_pump << std::endl;
+    std::cout << std::setw(40) << "primary_negative_pump" << std::setw(15) << data.battery.primary_negative_pump << std::endl;
+    std::cout << std::setw(40) << "positive_valve" << std::setw(15) << data.battery.positive_valve << std::endl;
+    std::cout << std::setw(40) << "negative_valve" << std::setw(15) << data.battery.negative_valve << std::endl;
+    std::cout << std::setw(40) << "balancing_valve" << std::setw(15) << data.battery.balancing_valve << std::endl;
+    std::cout << std::setw(40) << "primary_charging_relay" << std::setw(15) << data.battery.primary_charging_relay << std::endl;
+    std::cout << std::setw(40) << "primary_discharge_relay" << std::setw(15) << data.battery.primary_discharge_relay << std::endl;
+    std::cout << std::setw(40) << "state_of_charge" << std::setw(15) << data.battery.state_of_charge << std::endl;
+    std::cout << std::setw(40) << "pcs1_dc_batt_current" << std::setw(15) << data.battery.pcs1_dc_batt_current << std::endl;
+    std::cout << std::setw(40) << "pcs1_dc_inverter_power" << std::setw(15) << data.battery.pcs1_dc_inverter_power << std::endl;
+    std::cout << std::setw(40) << "pcs1_voltage" << std::setw(15) << data.battery.pcs1_voltage << std::endl;
+    std::cout << std::setw(40) << "pcs1_current" << std::setw(15) << data.battery.pcs1_current << std::endl;
+    std::cout << std::setw(40) << "pcs1_reactive_power" << std::setw(15) << data.battery.pcs1_reactive_power << std::endl;
+    std::cout << std::setw(40) << "pcs1_load_power" << std::setw(15) << data.battery.pcs1_load_power << std::endl;
+    std::cout << std::setw(40) << "pcs1_ac_supply_power" << std::setw(15) << data.battery.pcs1_ac_supply_power << std::endl;
+    std::cout << "==================================================" << std::endl;
+    /*
     printf("system_mode : [%1.0f]\r\n",data.battery.system_mode);                   // Added on 11 Aug 21
     printf("system_alarm_status : [%1.0f]\r\n",data.battery.system_alarm_status);   // Added on 11 Aug 21
 
@@ -386,294 +383,220 @@ void printSensorData(sensor_data data)
     printf("pcs1_ac_out_status : [%f]\r\n",data.battery.pcs1_ac_out_status);        // Added on 11 Aug 21
     printf("pcs1_fault_status : [%f]\r\n",data.battery.pcs1_fault_status);          // Added on 11 Aug 21
     printf("pcs1_fan_speed : [%f]\r\n",data.battery.pcs1_fan_speed);                // Added on 11 Aug 21
-*/
+    */
+}
+void printComAPData(sensor_data data)
+{
+    std::cout << std::right;
+    std::cout << std::setfill('-');
+    std::cout << std::setw(45) << "ComAP Data" << std::endl;
+    std::cout << std::setfill(' ');
+    std::cout << std::left;
+    std::cout << std::setw(40) << "voltage_gain" << std::setw(15) << data.battery.voltage_gain << std::endl;
+    std::cout << std::setw(40) << "voltage_int" << std::setw(15) << data.battery.voltage_int << std::endl;
+    std::cout << "==================================================" << std::endl;
 }
 
 void probeBMSSensors()
 {
-    while(1)
+    if(isBMSModbusConn)
     {
-        if(isBMSModbusConn)
+        // printf("Probing sensors to read modbus data\r\n");
+        for(resCode = 0; resCode < sensor_configuration.size(); resCode++)
         {
-            // printf("Probing sensors to read modbus data\r\n");
-            for(resCode = 0; resCode < sensor_configuration.size(); resCode++)
+            sensor_config* current_reg = sensor_configuration.at(resCode);
+            int addr = (current_reg->reg_offset);
+            int readCode = 0;
+
+            if(current_reg->regType == reg_type::HOLDING_REG)
             {
-                sensor_config* current_reg = sensor_configuration.at(resCode);
+                readCode = modbus_read_registers(mbBMS, addr , current_reg->noOfRegsToRead, sensor_value);
+            }
+            else
+            {
+                readCode = modbus_read_input_registers(mbBMS, addr , current_reg->noOfRegsToRead, sensor_value);
+            }
 
-                int addr = (current_reg->reg_offset);
-                int readCode = 0;
+            if(readCode == -1)
+            {
+                printf("ERROR: %s\n", modbus_strerror(errno));
+                isBMSModbusConn = false;
+                break;
+            }
+            else
+            {
+                // printf(" sensor_value : [%d]\r\n",(int16_t)sensor_value[0]);
+                // *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
+                // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
+                // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
 
-                if(current_reg->regType == reg_type::HOLDING_REG)
+                if(current_reg->noOfRegsToRead == 1)
                 {
-                    readCode = modbus_read_registers(mbBMS, addr , current_reg->noOfRegsToRead, sensor_value);
-                }
-                else
-                {
-                    readCode = modbus_read_input_registers(mbBMS, addr , current_reg->noOfRegsToRead, sensor_value);
-                }
-
-                if(readCode == -1)
-                {
-                    printf("ERROR: %s\n", modbus_strerror(errno));
-                    isBMSModbusConn = false;
-                    break;
-                }
-                else
-                {
-                    // printf(" sensor_value : [%d]\r\n",(int16_t)sensor_value[0]);
-                    // *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
-                    // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
-		            // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
-
-                    if(current_reg->noOfRegsToRead == 1)
+                    float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);
+                    if(current_reg->valueType == data_type::DT_BOOL)
                     {
-                        float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);
-                        if(current_reg->valueType == data_type::DT_BOOL)
-                        {
-                            *(current_reg->dest_bool_ptr) = (bool)sensor_value[0];
-                        }
-                        if(current_reg->valueType == data_type::DT_INT16)
-                        {
-                            *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
-                        //   printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
-                        }
-                        if(current_reg->valueType == data_type::DT_FLOAT)
-                        {
-                            float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);  
-                            // *(current_reg->dest_float_ptr) = (float)sensor_value[0];
-		                    *(current_reg->dest_float_ptr) = scaledValue;
-                            // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
-                        }
-                        if(current_reg->valueType == data_type::DT_INT32)
-                        {
-                            *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
-                            // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
-                        }
+                        *(current_reg->dest_bool_ptr) = (bool)sensor_value[0];
                     }
-                    else if(current_reg->noOfRegsToRead == 2)
+                    if(current_reg->valueType == data_type::DT_INT16)
                     {
-                        float scaledValue = ((((int32_t)sensor_value[0] << 16) | sensor_value[1])*current_reg->scale);
-                        if(current_reg->valueType == data_type::DT_UINT32)
-                        {
-                            *(current_reg->dest_int32_ptr) = (int32_t)scaledValue;
-                        }
-                        else if(current_reg->valueType == data_type::DT_FLOAT)
-                        {
-                            *(current_reg->dest_float_ptr) = scaledValue;
-                        } 
-                        else if(current_reg->valueType == data_type::DT_BOOL)
-                        {
-                            *(current_reg->dest_bool_ptr) = (bool)scaledValue;
-                        }
+                        *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
+                        // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
+                    }
+                    if(current_reg->valueType == data_type::DT_FLOAT)
+                    {
+                        float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);  
+                        // *(current_reg->dest_float_ptr) = (float)sensor_value[0];
+                        *(current_reg->dest_float_ptr) = scaledValue;
+                        // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
+                    }
+                    if(current_reg->valueType == data_type::DT_INT32)
+                    {
+                        *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
+                        // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
+                    }
+                }
+                else if(current_reg->noOfRegsToRead == 2)
+                {
+                    float scaledValue = ((((int32_t)sensor_value[0] << 16) | sensor_value[1])*current_reg->scale);
+                    if(current_reg->valueType == data_type::DT_UINT32)
+                    {
+                        *(current_reg->dest_int32_ptr) = (int32_t)scaledValue;
+                    }
+                    else if(current_reg->valueType == data_type::DT_FLOAT)
+                    {
+                        *(current_reg->dest_float_ptr) = scaledValue;
+                    } 
+                    else if(current_reg->valueType == data_type::DT_BOOL)
+                    {
+                        *(current_reg->dest_bool_ptr) = (bool)scaledValue;
                     }
                 }
             }
-            if(resCode == sensor_configuration.size())
-            {
-                resCode = 0;
-                noOfBMSModbusAttempts = 0;
-                getCurrentTime();
-               
-                //mutex lock to push the new modbus data, required to avoid issues with the data send task
-                mtx_access_sensor_data_db.lock();
-
-                actual_sensor_data.uptime = difftime(timeNow,timeStarted);
-                actual_sensor_data.timestamp = timeNow;
-
-                memcpy(&(actual_sensor_data.battery) ,&latest_battery_data, sizeof(battery_data));
-                printSensorData(actual_sensor_data);
-
-                mtx_curr_error.lock();
-                curr_error = logValues(db, stmt, &actual_sensor_data, markToSent); 
-              
-                //////// call the sql query to insert
-                mtx_access_sensor_data_db.unlock();
-
-                if(curr_error.lineNo != -1)
-                {
-                    mtx_error_msg.lock();
-                    sprintf(errorMsg, "Unable to log data in DB. SQL RC [%d], Line_No [%d]",curr_error.rc, curr_error.lineNo);
-                    mtx_curr_error.unlock();
-                    logErrorInDB();
-                }
-                else
-                {
-                    mtx_curr_error.unlock();
-                }
-
-                printf("Probed Sensors, system uptime: [%ld] isBMSModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isBMSModbusConn, markToSent);
-                printSensorData(actual_sensor_data);
-                markToSent = 0;
-                memset(&latest_battery_data,0,sizeof(battery_data));
-            }
         }
-        else if(noOfBMSModbusAttempts < sys_config.noOfModbusAttemptsAllowed)
-        {
-            // Will be unlocked in mtx_error_msg
-            mtx_error_msg.lock();
-            sprintf(errorMsg, "BMS Modbus Read Failed. Trying another attempt! Line No %d", __LINE__);
-            logErrorInDB();
-
-            printf("BMS Modbus Read Failed. Trying another attempt!\r\n");
-            noOfBMSModbusAttempts++;
-        }  
-        else
-        {
-            // we have reached the limit for no of attempts... sleep for a while and then try again
-            mtx_error_msg.lock();
-            sprintf(errorMsg, "BMS Modbus might not be connected. Trying to reconnect! Line No %d", __LINE__);
-            logErrorInDB();
-
-            printf("BMS Modbus is not connected. Trying to reconnect!\r\n");
-            reconnectToBMSModbus();
-            noOfBMSModbusAttempts = 0;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(sys_config.modbus_data_read_interval));
     }
+    else if(noOfBMSModbusAttempts < sys_config.noOfModbusAttemptsAllowed)
+    {
+        // Will be unlocked in mtx_error_msg
+        mtx_error_msg.lock();
+        sprintf(errorMsg, "BMS Modbus Read Failed. Trying another attempt! Line No %d", __LINE__);
+        logErrorInDB();
+
+        printf("BMS Modbus Read Failed. Trying another attempt!\r\n");
+        noOfBMSModbusAttempts++;
+    }  
+    else
+    {
+        // we have reached the limit for no of attempts... sleep for a while and then try again
+        mtx_error_msg.lock();
+        sprintf(errorMsg, "BMS Modbus might not be connected. Trying to reconnect! Line No %d", __LINE__);
+        logErrorInDB();
+
+        printf("BMS Modbus is not connected. Trying to reconnect!\r\n");
+        reconnectToBMSModbus();
+        noOfBMSModbusAttempts = 0;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(sys_config.modbus_data_read_interval));
 }
 
 void probeComAPSensors()
 {
-  while(1)
-  {
-        if(isComAPModbusConn)
-        {
-            // printf("Probing sensors to read modbus data\r\n");
+    if(isComAPModbusConn)
+    {
+        // printf("Probing sensors to read modbus data\r\n");
 
-            for(resCode = 0; resCode < comap_configuration.size(); resCode++)
+        for(resCode2 = 0; resCode2 < comap_configuration.size(); resCode2++)
+        {
+            sensor_config* current_reg = comap_configuration.at(resCode2); 
+            int addr = (current_reg->reg_offset);
+            int readCode = 0;
+
+            if(current_reg->regType == reg_type::HOLDING_REG)
             {
-                sensor_config* current_reg = comap_configuration.at(resCode); 
-                
-                int addr = (current_reg->reg_offset);
-                int readCode = 0;
-                
-                if(current_reg->regType == reg_type::HOLDING_REG)
+                readCode = modbus_read_registers(mbComAP, addr , current_reg->noOfRegsToRead, sensor_value);
+            }
+            else 
+            {
+                readCode = modbus_read_input_registers(mbComAP, addr , current_reg->noOfRegsToRead, sensor_value);
+            }
+            if(readCode == -1)
+            {
+                printf("ERROR: %s\n", modbus_strerror(errno));
+                isComAPModbusConn = false;
+                break;
+            }
+            else
+            {
+                // printf(" sensor_value : [%d]\r\n",(int16_t)sensor_value[0]);
+                // *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
+                // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
+                // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
+
+                if(current_reg->noOfRegsToRead == 1)
                 {
-                    readCode = modbus_read_registers(mbComAP, addr , current_reg->noOfRegsToRead, sensor_value);
-                }
-                else 
-                {
-                    readCode = modbus_read_input_registers(mbComAP, addr , current_reg->noOfRegsToRead, sensor_value);
-                }
-                
-                if(readCode == -1)
-                {
-                    printf("ERROR: %s\n", modbus_strerror(errno));
-                    isComAPModbusConn = false;
-                    break;
-                }
-                else
-                {
-                    // printf(" sensor_value : [%d]\r\n",(int16_t)sensor_value[0]);
-                    // *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
-                    // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
-		            // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
-                 
-                    if(current_reg->noOfRegsToRead == 1)
+                    float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);
+                    if(current_reg->valueType == data_type::DT_BOOL)
                     {
-                        float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);
-                        if(current_reg->valueType == data_type::DT_BOOL)
-                        {
-                            *(current_reg->dest_bool_ptr) = (bool)sensor_value[0];
-                        }
-                        if(current_reg->valueType == data_type::DT_INT16)
-                        {
-                            *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
-                        //   printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
-                        }
-                        if(current_reg->valueType == data_type::DT_FLOAT)
-                        {
-                            float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);  
-                            // *(current_reg->dest_float_ptr) = (float)sensor_value[0];
-		                    *(current_reg->dest_float_ptr) = scaledValue;
-                            // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
-                        }
-                        if(current_reg->valueType == data_type::DT_INT32)
-                        {
-                            *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
-                            // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
-                        }
+                        *(current_reg->dest_bool_ptr) = (bool)sensor_value[0];
                     }
-                    else if(current_reg->noOfRegsToRead == 2)
+                    if(current_reg->valueType == data_type::DT_INT16)
                     {
-                        float scaledValue = ((((int32_t)sensor_value[0] << 16) | sensor_value[1])*current_reg->scale);
-                        if(current_reg->valueType == data_type::DT_UINT32)
-                        {
-                            *(current_reg->dest_int32_ptr) = (int32_t)scaledValue;
-                        }
-                        else if(current_reg->valueType == data_type::DT_FLOAT)
-                        {
-                            *(current_reg->dest_float_ptr) = scaledValue;
-                        } 
-                        else if(current_reg->valueType == data_type::DT_BOOL)
-                        {
-                            *(current_reg->dest_bool_ptr) = (bool)scaledValue;
-                        }
+                        *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
+                    //   printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
+                    }
+                    if(current_reg->valueType == data_type::DT_FLOAT)
+                    {
+                        float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);  
+                        // *(current_reg->dest_float_ptr) = (float)sensor_value[0];
+                        *(current_reg->dest_float_ptr) = scaledValue;
+                        // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
+                    }
+                    if(current_reg->valueType == data_type::DT_INT32)
+                    {
+                        *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
+                        // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
+                    }
+                }
+                else if(current_reg->noOfRegsToRead == 2)
+                {
+                    float scaledValue = ((((int32_t)sensor_value[0] << 16) | sensor_value[1])*current_reg->scale);
+                    if(current_reg->valueType == data_type::DT_UINT32)
+                    {
+                        *(current_reg->dest_int32_ptr) = (int32_t)scaledValue;
+                    }
+                    else if(current_reg->valueType == data_type::DT_FLOAT)
+                    {
+                        *(current_reg->dest_float_ptr) = scaledValue;
+                    } 
+                    else if(current_reg->valueType == data_type::DT_BOOL)
+                    {
+                        *(current_reg->dest_bool_ptr) = (bool)scaledValue;
                     }
                 }
             }
-            if(resCode == sensor_configuration.size())
-            {
-                resCode = 0;
-                noOfComAPModbusAttempts = 0;
-                getCurrentTime();
-               
-                //mutex lock to push the new modbus data, required to avoid issues with the data send task
-                mtx_access_sensor_data_db.lock();
-
-                actual_sensor_data.uptime = difftime(timeNow,timeStarted);
-                actual_sensor_data.timestamp = timeNow;
-
-                memcpy(&(actual_sensor_data.battery) ,&latest_battery_data, sizeof(battery_data));
-                printSensorData(actual_sensor_data);
-
-                mtx_curr_error.lock();
-                curr_error = logValues(db, stmt, &actual_sensor_data, markToSent); 
-              
-                //////// call the sql query to insert
-                mtx_access_sensor_data_db.unlock();
-
-                if(curr_error.lineNo != -1)
-                {
-                    mtx_error_msg.lock();
-                    sprintf(errorMsg, "Unable to log data in DB. SQL RC [%d], Line_No [%d]",curr_error.rc, curr_error.lineNo);
-                    mtx_curr_error.unlock();
-                    logErrorInDB();
-                }
-                else
-                {
-                    mtx_curr_error.unlock();
-                }
-
-                printf("Probed Sensors, system uptime: [%ld] isComAPModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isComAPModbusConn, markToSent);
-                printSensorData(actual_sensor_data);
-                markToSent = 0;
-                memset(&latest_battery_data,0,sizeof(battery_data));
-            }
         }
-        else if(noOfComAPModbusAttempts < sys_config.noOfModbusAttemptsAllowed)
-        {
-            // Will be unlocked in mtx_error_msg
-            mtx_error_msg.lock();
-            sprintf(errorMsg, "ComAP Modbus Read Failed. Trying another attempt! Line No %d", __LINE__);
-            logErrorInDB();
-
-            printf("ComAP Modbus Read Failed. Trying another attempt!\r\n");
-            noOfComAPModbusAttempts++;
-        }  
-        else
-        {
-            // we have reached the limit for no of attempts... sleep for a while and then try again
-            mtx_error_msg.lock();
-            sprintf(errorMsg, "ComAP Modbus might not be connected. Trying to reconnect! Line No %d", __LINE__);
-            logErrorInDB();
-
-            printf("ComAP Modbus is not connected. Trying to reconnect!\r\n");
-            reconnectToComAPModbus();
-            noOfComAPModbusAttempts = 0;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(sys_config.modbus_data_read_interval));
     }
+    else if(noOfComAPModbusAttempts < sys_config.noOfModbusAttemptsAllowed)
+    {
+        // Will be unlocked in mtx_error_msg
+        mtx_error_msg.lock();
+        sprintf(errorMsg, "ComAP Modbus Read Failed. Trying another attempt! Line No %d", __LINE__);
+        logErrorInDB();
+
+        printf("ComAP Modbus Read Failed. Trying another attempt!\r\n");
+        noOfComAPModbusAttempts++;
+    }  
+    else
+    {
+        // we have reached the limit for no of attempts... sleep for a while and then try again
+        mtx_error_msg.lock();
+        sprintf(errorMsg, "ComAP Modbus might not be connected. Trying to reconnect! Line No %d", __LINE__);
+        logErrorInDB();
+
+        printf("ComAP Modbus is not connected. Trying to reconnect!\r\n");
+        reconnectToComAPModbus();
+        noOfComAPModbusAttempts = 0;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(sys_config.modbus_data_read_interval));
 }
 
 void setMarkToSent()
@@ -709,7 +632,6 @@ void sendSensorData()
             printf("Data count: [%d]\r\n",count);
             sendDataFaster = false;
         }
-        
         mtx_curr_error.lock();
         curr_error = getSensorDataEntry(db, &db_sensor_data);
         mtx_access_sensor_data_db.unlock();
@@ -725,20 +647,20 @@ void sendSensorData()
         {
             mtx_curr_error.unlock();
         }
-	    int status_vft=0;
+        int status_vft=0;
         int status_mads=0;
         if(db_sensor_data.isValid)
         {
-        	encode_sensor_data_to_json(sendDataJSON, db_sensor_data, sys_config);
+            encode_sensor_data_to_json(sendDataJSON, db_sensor_data, sys_config);
             // printf("JSON Str: %s\n", sendDataString);
             sendDataString = sendDataJSON.dump(4);
-           	// printf("JSON Str: %s\n", sendDataString);
+            // printf("JSON Str: %s\n", sendDataString);
             try
-           	{
+            {
                 // send a post request
                 vftPlt::madsRequest.set_bearer_token_auth(sys_config.mads_auth_token.c_str());
                 auto madsResponseVFT = vftPlt::madsRequest.Post(sys_config.mads_url.c_str(), sendDataString, "application/json");  
-                        
+
                 if(madsResponseVFT!=nullptr) //NULL earlier
                 {
                     if(madsResponseVFT->body.empty())
@@ -749,7 +671,7 @@ void sendSensorData()
                     {   
                         status_vft = madsResponseVFT->status;   
                         std::cout << std::string(madsResponseVFT->body.begin(), madsResponseVFT->body.end()) << '\n'; // print the result
-				    }
+                    }
                 }
                 else
                 {
@@ -761,15 +683,15 @@ void sendSensorData()
             }
             catch (const std::exception& e)
             {
-                std::cerr << "Request failed, error: " << e.what() << '\n';
+            std::cerr << "Request failed, error: " << e.what() << '\n';
             }
-	    	// Duplicated Code for MADS
-	    	try
+            // Duplicated Code for MADS
+            try
             {
                 // send a post request
                 madsPlt::madsRequest.set_bearer_token_auth(madsPlt::mads_auth_token.c_str());
                 auto madsResponse = madsPlt::madsRequest.Post(madsPlt::mads_url.c_str(), sendDataString, "application/json");  
-                        
+
                 if(madsResponse!=nullptr) //NULL earlier
                 {
                     if(madsResponse->body.empty())
@@ -813,8 +735,7 @@ void sendSensorData()
             {
                 mtx_curr_error.unlock();
             }
-
-           	noOfInternetAttempts = 0;
+            noOfInternetAttempts = 0;
             printf("Updating DATABASE System\r\n");
         }
         else
@@ -849,8 +770,8 @@ void sendSensorData()
                 system("shutdown -r now");
             }
         }
-	    // Duplicated code for MADS
-	    if(status_mads == 202)  
+        // Duplicated code for MADS
+        if(status_mads == 202)  
         {
             mtx_access_sensor_data_db.lock();
             mtx_curr_error.lock();
@@ -903,7 +824,7 @@ void sendSensorData()
                 system("shutdown -r now");
             }
         }
-	    // Duplication code block ends here
+        // Duplication code block ends here
         ////////////else part of sent succeed//////// check for internet connectivity
         if(sendDataFaster)
         {
@@ -916,14 +837,13 @@ void sendSensorData()
             std::this_thread::sleep_for(std::chrono::milliseconds(sys_config.normal_packet_sent_interval));
         }
     }
-
 }
 
 void save_system_config()
 {
     json system_conf;
 
-	system_conf["modbus_BMS_ip"] = "192.168.0.50";
+    system_conf["modbus_BMS_ip"] = "192.168.0.50";
     system_conf["modbus_BMS_slave_id"] = 1;
     system_conf["modbus_ComAP_ip"] = "192.168.0.41";
     system_conf["modbus_ComAP_slave_id"] = 1;
@@ -950,7 +870,7 @@ void read_system_config()
     // read a JSON file
     std::ifstream i("/home/pi/Desktop/modbustcplogger/config.json");
     i >> system_json_config;
-    
+
     string modbus_BMS_ip = system_json_config["modbus_BMS_ip"];
     string modbus_ComAP_ip = system_json_config["modbus_ComAP_ip"];
     string mads_auth_token = system_json_config["mads_auth_token"];
@@ -1000,7 +920,7 @@ void createDBSpace()
                 executeVacuum(db);
 
                 printf("Deleted records: [%d]\r\n",deleteRecordCount);
-                
+
                 mtx_error_msg.lock();
                 sprintf(errorMsg, "Deleted records %d from DB, Line No %d", deleteRecordCount, __LINE__);
                 logErrorInDB();
@@ -1017,8 +937,61 @@ void createDBSpace()
 }
 void sensorsProbing (void)
 {
-    probeBMSSensors();
-    probeComAPSensors();
+    while(1)
+    {
+        probeBMSSensors();
+        probeComAPSensors();
+        if((resCode == sensor_configuration.size() && isBMSModbusConn) || (resCode2 == comap_configuration.size() && isComAPModbusConn))
+        {
+            getCurrentTime();
+            if(resCode == sensor_configuration.size())
+            {
+                resCode = 0;
+                noOfBMSModbusAttempts = 0;
+
+                printf("Probed Sensors, system uptime: [%ld] isBMSModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isBMSModbusConn, markToSent);
+                printSensorData(actual_sensor_data);
+            }
+            if(resCode2 == comap_configuration.size())
+            {
+                resCode2 = 0;
+                noOfComAPModbusAttempts = 0;
+
+                printf("Probed Sensors, system uptime: [%ld] isComAPModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isComAPModbusConn, markToSent);
+                printComAPData(actual_sensor_data);
+            }
+
+            //mutex lock to push the new modbus data, required to avoid issues with the data send task
+            mtx_access_sensor_data_db.lock();
+
+            actual_sensor_data.uptime = difftime(timeNow,timeStarted);
+            actual_sensor_data.timestamp = timeNow;
+
+            memcpy(&(actual_sensor_data.battery) ,&latest_battery_data, sizeof(battery_data));
+            printComAPData(actual_sensor_data);
+            printSensorData(actual_sensor_data);
+
+            mtx_curr_error.lock();
+            curr_error = logValues(db, stmt, &actual_sensor_data, markToSent); 
+
+            //////// call the sql query to insert
+            mtx_access_sensor_data_db.unlock();
+
+            if(curr_error.lineNo != -1)
+            {
+                mtx_error_msg.lock();
+                sprintf(errorMsg, "Unable to log data in DB. SQL RC [%d], Line_No [%d]",curr_error.rc, curr_error.lineNo);
+                mtx_curr_error.unlock();
+                logErrorInDB();
+            }
+            else
+            {
+                mtx_curr_error.unlock();
+            }
+            markToSent = 0;
+            memset(&latest_battery_data,0,sizeof(battery_data));
+        }
+    }
 }
 
 int main(void) 
@@ -1060,7 +1033,7 @@ int main(void)
     }
     else
     {
-	printf("Sucessful BMS Modbus connection.\n");
+        printf("Sucessful BMS Modbus connection.\n");
         isBMSModbusConn = true;
     }
 
@@ -1075,17 +1048,17 @@ int main(void)
     }
     else
     {
-	printf("Sucessful ComAP Modbus connection.\n");
+        printf("Sucessful ComAP Modbus connection.\n");
         isComAPModbusConn = true;
     }
-  
+
     populateSensorConfiguration();
     populateComAPConfiguration();
 
     printf("Sensor Configuration populated\n\r");
-    
+
     int result=sqlite3_open(db_data,&db);
-	
+
     if (result != SQLITE_OK) 
     {
         printf("Failed to open database \n\r");
@@ -1101,7 +1074,7 @@ int main(void)
     printf("Database %s opened\n\r",db_data);
 
     result=sqlite3_open(db_statusdata,&dbErr);
-	
+
     if (result != SQLITE_OK) 
     {
         printf("Failed to open database db_statusdata\n\r");
