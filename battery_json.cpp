@@ -12,7 +12,7 @@ float get_charge_level(float soc)
 		cl = 0;
 	if (cl > 100)
 		cl = 100;
-	printf("Charging level %f", cl);
+	printf("Charging level : [%f]\r\n", cl);
 	return cl;
 }
 

@@ -10,10 +10,10 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
-#include <sqlite3.h>       
-#include <vector> 
-#include <thread>        
-#include <mutex>         
+#include <sqlite3.h>
+#include <vector>
+#include <thread>
+#include <mutex>
 #include <iostream>
 
 #define CPPHTTPLIB_OPENSSL_SUPPORT
@@ -106,7 +106,7 @@ httplib::Client cli("http://192.168.1.174:1234");
 void reconnectToBMSModbus()
 {
     if(mbBMS!= NULL)
-    {   
+    {
         modbus_close(mbBMS);
         modbus_free(mbBMS);
 
@@ -115,13 +115,14 @@ void reconnectToBMSModbus()
 
         if(mbBMS != NULL)
         {
-            if (modbus_connect(mbBMS) == -1) 
+            if (modbus_connect(mbBMS) == -1)
             {
                 fprintf(stdout, "BMS Modbus reConnection failed: %s\n", modbus_strerror(errno));
                 isBMSModbusConn = false;
             }
             else
             {
+		printf("BMS Modbus connection successful.");
                 isBMSModbusConn = true;
             }
         }
@@ -139,7 +140,7 @@ void reconnectToBMSModbus()
 void reconnectToComAPModbus()
 {
     if(mbComAP!= NULL)
-    {   
+    {
         modbus_close(mbComAP);
         modbus_free(mbComAP);
 
@@ -148,13 +149,14 @@ void reconnectToComAPModbus()
 
         if(mbComAP!= NULL)
         {
-            if (modbus_connect(mbComAP) == -1) 
-            {
-                fprintf(stdout, "ComAP Modbus reConnection failed: %s\n", modbus_strerror(errno));
-                isComAPModbusConn = false;
+            if (modbus_connect(mbComAP) == -1)
+	    {
+            	fprintf(stdout, "ComAP Modbus reConnection failed: %s\n", modbus_strerror(errno));
+            	isComAPModbusConn = false;
             }
             else
             {
+		printf("ComAP Modbus connection successful.");
                 isComAPModbusConn = true;
             }
         }
@@ -171,10 +173,10 @@ void reconnectToComAPModbus()
 // End of modbus reconnection
 
 void getCurrentTime(void)
-{	
-    timeNow = time(NULL); 
+{
+    timeNow = time(NULL);
     ts = localtime(&timeNow);
-    strftime(datetime, sizeof(datetime), "%Y-%m-%d %H:%M", ts);		
+    strftime(datetime, sizeof(datetime), "%Y-%m-%d %H:%M", ts);
 }
 
 void logErrorInDB()
@@ -188,7 +190,7 @@ void logErrorInDB()
 
 int x;
 void checkInternetConnectivity()
-{   
+{
     x = system("ping -c1 -w1 8.8.8.8 > /dev/null 2>&1");
     if(x == 0)
     {
@@ -198,7 +200,7 @@ void checkInternetConnectivity()
     {
         isInternetConn = false;
         printf("Internet Connection Failed\r\n");
-    }      
+    }
 }
 
 void populateSensorConfiguration()
@@ -308,8 +310,8 @@ void populateSensorConfiguration()
 
 void populateComAPConfiguration()
 {
-    sensor_configuration.push_back(new sensor_config(0,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.bcu_leakage_sensor)));
-    sensor_configuration.push_back(new sensor_config(2,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.positive_tank_high_level_float)));
+    comap_configuration.push_back(new sensor_config(43098,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.voltage_gain)));
+    comap_configuration.push_back(new sensor_config(43099,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.voltage_int)));
 }
 
 void printSensorData(sensor_data data)
@@ -319,7 +321,10 @@ void printSensorData(sensor_data data)
     printf("Timestamp : [%ld]\r\n",data.timestamp);
 
     printf("markToSent : [%d]\r\n",markToSent);
-    
+    printf("For debugging, BMS sensor data ends here.\r\n");
+    printf("voltage_gain : [%f]\r\n", data.battery.voltage_gain);
+    printf("voltage_int : [%f]\r\b", data.battery.voltage_int);
+/*
     printf("bcu_leakage_sensor : [%d]\r\n",data.battery.bcu_leakage_sensor);		// Added on 11 Aug 21
     printf("positive_tank_high_level_float : [%d]\r\n",data.battery.positive_tank_high_level_float);
     printf("negative_tank_high_level_float : [%d]\r\n",data.battery.negative_tank_high_level_float);
@@ -340,7 +345,7 @@ void printSensorData(sensor_data data)
     printf("primary_negative_pump : [%1.0f]\r\n",data.battery.primary_negative_pump);
     printf("positive_valve : [%1.0f]\r\n",data.battery.positive_valve);
     printf("negative_valve : [%1.0f]\r\n",data.battery.negative_valve);
-    printf("balancing_valve : [%1.0f]\r\n",data.battery.balancing_valve);    
+    printf("balancing_valve : [%1.0f]\r\n",data.battery.balancing_valve);
     printf("primary_charging_relay : [%1.0f]\r\n",data.battery.primary_charging_relay);
     printf("primary_discharge_relay : [%1.0f]\r\n",data.battery.primary_discharge_relay);
     printf("state_of_charge : [%f]\r\n",data.battery.bcu_state_of_charge);   printf("pcs1_dc_volts : [%f]\r\n",data.battery.pcs1_dc_volts); // Added on 11 Aug 21
@@ -352,7 +357,7 @@ void printSensorData(sensor_data data)
     printf("pcs1_reactive_power : [%f]\r\n",data.battery.pcs1_reactive_power);
     printf("pcs1_load_power : [%f]\r\n",data.battery.pcs1_load_power);
     printf("pcs1_ac_supply_power : [%f]\r\n",data.battery.pcs1_ac_supply_power);
-
+*/
 /*
     printf("system_mode : [%1.0f]\r\n",data.battery.system_mode);                   // Added on 11 Aug 21
     printf("system_alarm_status : [%1.0f]\r\n",data.battery.system_alarm_status);   // Added on 11 Aug 21
@@ -393,20 +398,20 @@ void probeBMSSensors()
             // printf("Probing sensors to read modbus data\r\n");
             for(resCode = 0; resCode < sensor_configuration.size(); resCode++)
             {
-                sensor_config* current_reg = sensor_configuration.at(resCode); 
-                
+                sensor_config* current_reg = sensor_configuration.at(resCode);
+
                 int addr = (current_reg->reg_offset);
                 int readCode = 0;
-                
+
                 if(current_reg->regType == reg_type::HOLDING_REG)
                 {
                     readCode = modbus_read_registers(mbBMS, addr , current_reg->noOfRegsToRead, sensor_value);
                 }
-                else 
+                else
                 {
                     readCode = modbus_read_input_registers(mbBMS, addr , current_reg->noOfRegsToRead, sensor_value);
                 }
-                
+
                 if(readCode == -1)
                 {
                     printf("ERROR: %s\n", modbus_strerror(errno));
@@ -419,7 +424,7 @@ void probeBMSSensors()
                     // *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
                     // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
 		            // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
-                 
+
                     if(current_reg->noOfRegsToRead == 1)
                     {
                         float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);
@@ -495,7 +500,8 @@ void probeBMSSensors()
                 {
                     mtx_curr_error.unlock();
                 }
-                printf("Probed Sensors, system uptime: [%ld] isModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isBMSModbusConn, markToSent);
+
+                printf("Probed Sensors, system uptime: [%ld] isBMSModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isBMSModbusConn, markToSent);
                 printSensorData(actual_sensor_data);
                 markToSent = 0;
                 memset(&latest_battery_data,0,sizeof(battery_data));
@@ -505,20 +511,20 @@ void probeBMSSensors()
         {
             // Will be unlocked in mtx_error_msg
             mtx_error_msg.lock();
-            sprintf(errorMsg, "Modbus Read Failed. Trying another attempt! Line No %d", __LINE__);
+            sprintf(errorMsg, "BMS Modbus Read Failed. Trying another attempt! Line No %d", __LINE__);
             logErrorInDB();
 
-            printf("Modbus Read Failed. Trying another attempt!\r\n");
+            printf("BMS Modbus Read Failed. Trying another attempt!\r\n");
             noOfBMSModbusAttempts++;
         }  
         else
         {
             // we have reached the limit for no of attempts... sleep for a while and then try again
             mtx_error_msg.lock();
-            sprintf(errorMsg, "Modbus might not be connected. Trying to reconnect! Line No %d", __LINE__);
+            sprintf(errorMsg, "BMS Modbus might not be connected. Trying to reconnect! Line No %d", __LINE__);
             logErrorInDB();
 
-            printf("Modbus is not connected. Trying to reconnect!\r\n");
+            printf("BMS Modbus is not connected. Trying to reconnect!\r\n");
             reconnectToBMSModbus();
             noOfBMSModbusAttempts = 0;
         }
@@ -534,9 +540,9 @@ void probeComAPSensors()
         {
             // printf("Probing sensors to read modbus data\r\n");
 
-            for(resCode = 0; resCode < sensor_configuration.size(); resCode++)
+            for(resCode = 0; resCode < comap_configuration.size(); resCode++)
             {
-                sensor_config* current_reg = sensor_configuration.at(resCode); 
+                sensor_config* current_reg = comap_configuration.at(resCode); 
                 
                 int addr = (current_reg->reg_offset);
                 int readCode = 0;
@@ -639,7 +645,7 @@ void probeComAPSensors()
                     mtx_curr_error.unlock();
                 }
 
-                printf("Probed Sensors, system uptime: [%ld] isModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isComAPModbusConn, markToSent);
+                printf("Probed Sensors, system uptime: [%ld] isComAPModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isComAPModbusConn, markToSent);
                 printSensorData(actual_sensor_data);
                 markToSent = 0;
                 memset(&latest_battery_data,0,sizeof(battery_data));
@@ -649,20 +655,20 @@ void probeComAPSensors()
         {
             // Will be unlocked in mtx_error_msg
             mtx_error_msg.lock();
-            sprintf(errorMsg, "Modbus Read Failed. Trying another attempt! Line No %d", __LINE__);
+            sprintf(errorMsg, "ComAP Modbus Read Failed. Trying another attempt! Line No %d", __LINE__);
             logErrorInDB();
 
-            printf("Modbus Read Failed. Trying another attempt!\r\n");
+            printf("ComAP Modbus Read Failed. Trying another attempt!\r\n");
             noOfComAPModbusAttempts++;
         }  
         else
         {
             // we have reached the limit for no of attempts... sleep for a while and then try again
             mtx_error_msg.lock();
-            sprintf(errorMsg, "Modbus might not be connected. Trying to reconnect! Line No %d", __LINE__);
+            sprintf(errorMsg, "ComAP Modbus might not be connected. Trying to reconnect! Line No %d", __LINE__);
             logErrorInDB();
 
-            printf("Modbus is not connected. Trying to reconnect!\r\n");
+            printf("ComAP Modbus is not connected. Trying to reconnect!\r\n");
             reconnectToComAPModbus();
             noOfComAPModbusAttempts = 0;
         }
@@ -1009,9 +1015,14 @@ void createDBSpace()
         std::this_thread::sleep_for(3600000ms); //corresponds to 1 hr
     }
 }
+void sensorsProbing (void)
+{
+    probeBMSSensors();
+    probeComAPSensors();
+}
 
-int main(void) {
-
+int main(void) 
+{
     read_system_config();
 
     cout << "================  Modbus TCP Logger ===============" << endl;
@@ -1049,6 +1060,7 @@ int main(void) {
     }
     else
     {
+	printf("Sucessful BMS Modbus connection.\n");
         isBMSModbusConn = true;
     }
 
@@ -1063,10 +1075,12 @@ int main(void) {
     }
     else
     {
+	printf("Sucessful ComAP Modbus connection.\n");
         isComAPModbusConn = true;
     }
   
     populateSensorConfiguration();
+    populateComAPConfiguration();
 
     printf("Sensor Configuration populated\n\r");
     
@@ -1104,8 +1118,7 @@ int main(void) {
 
     timeStarted = time(NULL); 
 
-    thread th1(probeBMSSensors);
-    thread th5(probeComAPSensors); 
+    thread th1(sensorsProbing);
     thread th2(setMarkToSent);
     thread th3(sendSensorData);
     thread th4(createDBSpace);
@@ -1113,5 +1126,4 @@ int main(void) {
     th2.join();
     th3.join();
     th4.join();
-    th5.join();
 }
