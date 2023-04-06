@@ -2,6 +2,44 @@
 // Author: Naina Gupta
 // July'2021 - ModbusTCPLogger v1.0
 //////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+// Documentation: Written by SeowSK
+//
+// 1) Adding Multiple Servers (For data migration):
+//      1.1) Add a namespace in "Section 1".
+//          - Each namespace represent a server
+//      1.2) Declare a new int variable for status checking in "Section 2.1"
+//      1.3) Copy "Section 2.2" and "Section 2.3" and paste it on the same indent
+//          - Modify all status variable to what you have declared on (1.2)
+//
+// 2) Removing transmission to MADS server
+//      2.1) Remove namespace containing MADS URL in "Section 1"
+//      2.2) Remove code block "Duplicated code for MADS" up to "End of duplicated code for MADS"
+//          - There are two code block as of 6th April 2023
+//
+// 3) Adding a modbus connection
+//      3.1) Add a modbus_t, port, bool, and noOfAttempts for your new modbus in "Section 3"
+//      3.2) Add Sensor configuration for your new modbus in "Section 3"
+//      3.3) Add a reconnection function in "Section 4" (Copy the block of function)
+//          - Modify your variables to what was declared in (3.1) and (3.2)
+//      3.4) Declare all of your registers in a new populateConfiguration function in "Section 5"
+//          - (Reason) Reading of sensors is dependent on sensor_config vector size
+//      3.5) Add a new function to print your data of the new modbus connection in "Section 6"
+//          - This is optional
+//          - Adding a new function is not required, but a modbus connection may fail.
+//          - Wants to stop the modbus that is not connected from printing.
+//      3.6) Add a new probe function in "Section 7"
+//          - Modify all variables declared on (3.1)
+//          - This function will read from modbus and store in memory (not database)
+//      3.7) Add your probe function in "Section 8"
+//          - This function will store the read values into database for sending to server
+//          - Remember to add checking for connection and vector size for your new modbus
+//          - Mainly Section 8.1, 8.2, and 8.3
+//      3.8) Add your modbus connection, reconnection, and sensor population in "Section 9"
+//      3.9) Add a new double array of your new modbus variables in "Section 10", battery_json.cpp
+//          - This section is only used to convert data to JSON before sending to gateway.
+//      3.10) Declare the variables of your new modbus connection in "Section 11"
+//          - This section is used to setup your <sensor_config> vector
 
 #include <stdio.h>
 #include <modbus.h>
@@ -32,6 +70,8 @@ string sendDataString;
 
 system_config sys_config;
 
+//////////////////////////////////////////////////////////////////////////////////
+// Section 3
 // For modbus communication
 modbus_t *mbBMS;
 modbus_t *mbComAP;
@@ -39,13 +79,23 @@ modbus_t *mbComAP;
 // modbus port of the communiting device
 int mbBMSPort = 1502;
 int mbComAPPort = 502;
-uint16_t sensor_value[2] ={0};
+
 // For Checking if Modbus is connected for each device
 static bool isBMSModbusConn = false;
 static bool isComAPModbusConn = false;
-static bool isInternetConn = false;
 int noOfBMSModbusAttempts = 0;
 int noOfComAPModbusAttempts = 0;
+
+std::vector<sensor_config*> sensor_configuration;
+std::vector<sensor_config*> comap_configuration;
+
+// For checking if all modbus variables are read
+uint16_t resCode = 0;
+uint16_t resCode2 = 0;
+// End of Section 3
+//////////////////////////////////////////////////////////////////////////////////
+uint16_t sensor_value[2] ={0};
+static bool isInternetConn = false;
 int noOfInternetAttempts = 0;
 int noOfInternetAttemptsAllowed = 10;
 
@@ -58,9 +108,6 @@ sensor_data actual_sensor_data;
 sensor_data db_sensor_data;
 
 bool sendDataFaster = false;
-
-std::vector<sensor_config*> sensor_configuration;
-std::vector<sensor_config*> comap_configuration;
 
 const char * db_data = "/home/pi/Desktop/modbustcplogger/db_sensordata.db";
 sqlite3 * db;
@@ -83,10 +130,8 @@ std::mutex mtx_mark_to_sent;
 std::mutex mtx_curr_error;
 std::mutex mtx_error_msg;
 
-uint16_t resCode = 0;
-uint16_t resCode2 = 0;
-
-// Code modified by SeowSK
+//////////////////////////////////////////////////////////////////////////////////
+// Section 1
 namespace madsPlt
 {
 	httplib::Client madsRequest("https://datakrewtech.com");
@@ -97,12 +142,16 @@ namespace vftPlt
 {
 	httplib::Client madsRequest("https://backend.vflowtechiot.com");
 }
+// End of Section 1
+//////////////////////////////////////////////////////////////////////////////////
 
 //Used for Testing
 httplib::Client cli("http://192.168.1.174:1234");
 
 #define SLAVE_ID 1
 
+//////////////////////////////////////////////////////////////////////////////////
+// Section 4
 // For reconnecting to Modbus, can ignore after settings are properly set.
 void reconnectToBMSModbus()
 {
@@ -171,7 +220,8 @@ void reconnectToComAPModbus()
         printf("Do nothing to ComAP MODBUS, should come back later. \r\n");
     }
 }
-// End of modbus reconnection
+// End of Section 4
+//////////////////////////////////////////////////////////////////////////////////
 
 void getCurrentTime(void)
 {
@@ -204,6 +254,8 @@ void checkInternetConnectivity()
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+// Section 5
 void populateSensorConfiguration()
 {
     sensor_configuration.push_back(new sensor_config(0,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.bcu_leakage_sensor)));
@@ -312,7 +364,10 @@ void populateComAPConfiguration()
     comap_configuration.push_back(new sensor_config(3098,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.voltage_gain)));
     comap_configuration.push_back(new sensor_config(3099,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.voltage_int)));
 }
-
+// End of Section 5
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+// Section 6
 void printSensorData(sensor_data data)
 {
     std::cout << std::right;
@@ -396,7 +451,10 @@ void printComAPData(sensor_data data)
     std::cout << std::setw(40) << "voltage_int" << std::setw(15) << data.battery.voltage_int << std::endl;
     std::cout << "==================================================" << std::endl;
 }
-
+// End of Section 6
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+// Section 7
 void probeBMSSensors()
 {
     if(isBMSModbusConn)
@@ -598,6 +656,8 @@ void probeComAPSensors()
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(sys_config.modbus_data_read_interval));
 }
+// End of Section 7
+//////////////////////////////////////////////////////////////////////////////////
 
 void setMarkToSent()
 {
@@ -609,7 +669,8 @@ void setMarkToSent()
         mtx_mark_to_sent.unlock();
     }
 }
-// to send data, can ignore if task is not related to sending data.
+//////////////////////////////////////////////////////////////////////////////////
+// Section 2
 void sendSensorData()
 {
     while(1)
@@ -647,14 +708,20 @@ void sendSensorData()
         {
             mtx_curr_error.unlock();
         }
+//////////////////////////////////////////////////////////////////////////////////
+// Section 2.1
         int status_vft=0;
         int status_mads=0;
+// End of Section 2.1
+//////////////////////////////////////////////////////////////////////////////////
         if(db_sensor_data.isValid)
         {
             encode_sensor_data_to_json(sendDataJSON, db_sensor_data, sys_config);
             // printf("JSON Str: %s\n", sendDataString);
             sendDataString = sendDataJSON.dump(4);
             // printf("JSON Str: %s\n", sendDataString);
+//////////////////////////////////////////////////////////////////////////////////
+// Section 2.2
             try
             {
                 // send a post request
@@ -685,7 +752,10 @@ void sendSensorData()
             {
             std::cerr << "Request failed, error: " << e.what() << '\n';
             }
-            // Duplicated Code for MADS
+// End of Section 2.2
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+// Duplicated code for MADS
             try
             {
                 // send a post request
@@ -716,7 +786,11 @@ void sendSensorData()
             {
                 std::cerr << "Request failed, error: " << e.what() << '\n';
             }
+// End of duplicated code for MADS
+//////////////////////////////////////////////////////////////////////////////////
         }
+//////////////////////////////////////////////////////////////////////////////////
+// Section 2.3
         if(status_vft == 202)  
         {
             mtx_access_sensor_data_db.lock();
@@ -770,7 +844,10 @@ void sendSensorData()
                 system("shutdown -r now");
             }
         }
-        // Duplicated code for MADS
+// End of Section 2.3
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+// Duplicated code for MADS
         if(status_mads == 202)  
         {
             mtx_access_sensor_data_db.lock();
@@ -824,7 +901,8 @@ void sendSensorData()
                 system("shutdown -r now");
             }
         }
-        // Duplication code block ends here
+// End of duplicated code for MADS
+//////////////////////////////////////////////////////////////////////////////////
         ////////////else part of sent succeed//////// check for internet connectivity
         if(sendDataFaster)
         {
@@ -838,6 +916,8 @@ void sendSensorData()
         }
     }
 }
+// End of Section 2
+//////////////////////////////////////////////////////////////////////////////////
 
 void save_system_config()
 {
@@ -935,15 +1015,27 @@ void createDBSpace()
         std::this_thread::sleep_for(3600000ms); //corresponds to 1 hr
     }
 }
+//////////////////////////////////////////////////////////////////////////////////
+// Section 8
 void sensorsProbing (void)
 {
     while(1)
     {
+//////////////////////////////////////////////////////////////////////////////////
+// Section 8.1
         probeBMSSensors();
         probeComAPSensors();
+// End of Section 8.1
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+// Section 8.2
         if((resCode == sensor_configuration.size() && isBMSModbusConn) || (resCode2 == comap_configuration.size() && isComAPModbusConn))
+// End of Section 8.2
+//////////////////////////////////////////////////////////////////////////////////
         {
             getCurrentTime();
+//////////////////////////////////////////////////////////////////////////////////
+// Section 8.3
             if(resCode == sensor_configuration.size())
             {
                 resCode = 0;
@@ -960,7 +1052,8 @@ void sensorsProbing (void)
                 printf("Probed Sensors, system uptime: [%ld] isComAPModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isComAPModbusConn, markToSent);
                 printComAPData(actual_sensor_data);
             }
-
+// End of Section 8.3
+//////////////////////////////////////////////////////////////////////////////////
             //mutex lock to push the new modbus data, required to avoid issues with the data send task
             mtx_access_sensor_data_db.lock();
 
@@ -968,8 +1061,6 @@ void sensorsProbing (void)
             actual_sensor_data.timestamp = timeNow;
 
             memcpy(&(actual_sensor_data.battery) ,&latest_battery_data, sizeof(battery_data));
-            printComAPData(actual_sensor_data);
-            printSensorData(actual_sensor_data);
 
             mtx_curr_error.lock();
             curr_error = logValues(db, stmt, &actual_sensor_data, markToSent); 
@@ -993,6 +1084,8 @@ void sensorsProbing (void)
         }
     }
 }
+// End of Section 8
+//////////////////////////////////////////////////////////////////////////////////
 
 int main(void) 
 {
@@ -1015,7 +1108,8 @@ int main(void)
     cout << "No of attempts allowed to send data before system restart in fast mode: " << sys_config.fastNoOfInternetAttemptsAllowed << endl;
     cout << "Asset ID: " << sys_config.asset_id << endl;
     cout << "====================================================" << endl;
-
+//////////////////////////////////////////////////////////////////////////////////
+// Section 9
     mbBMS = modbus_new_tcp(sys_config.modbus_BMS_ip.c_str(), mbBMSPort);
     modbus_set_slave(mbBMS,sys_config.modbus_BMS_slave_id);
 
@@ -1056,6 +1150,8 @@ int main(void)
     populateComAPConfiguration();
 
     printf("Sensor Configuration populated\n\r");
+// End of Section 9
+//////////////////////////////////////////////////////////////////////////////////
 
     int result=sqlite3_open(db_data,&db);
 

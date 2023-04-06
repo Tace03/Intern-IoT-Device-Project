@@ -44,6 +44,8 @@ typedef struct _system_config
     int asset_id;
 } system_config;
 
+//////////////////////////////////////////////////////////////////////////////////
+// Section 11
 typedef struct __attribute__((__packed__)) _battery_data 
 {
     float primary_charging_relay;               //prcr
@@ -57,7 +59,7 @@ typedef struct __attribute__((__packed__)) _battery_data
     float negative_valve;                       //nv
     float state_of_charge;
     float bcu_voltage;
-    float  bcu_current;
+    float bcu_current;
     float bcu_power;
     float bcu_state_of_charge;
     float bcu_mode_status;                      //608 # Added on 11 Aug 21
@@ -102,6 +104,8 @@ typedef struct __attribute__((__packed__)) _battery_data
     float voltage_gain;             // Added by SeowSK
     float voltage_int;              // Added by SeowSK
 } battery_data;
+// End of Section 11
+//////////////////////////////////////////////////////////////////////////////////
 
 typedef struct __attribute__((__packed__)) _sensor_data
 {

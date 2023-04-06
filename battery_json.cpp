@@ -26,6 +26,8 @@ float state_of_charge_config(float soc)
 	return sc;
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+// Section 10
 // This is just converting to JSON, do not matter where it come from
 void encode_sensor_data_to_json(json& out_data, const sensor_data& inp_data, system_config& sys_config)
 {
@@ -98,3 +100,5 @@ void encode_sensor_data_to_json(json& out_data, const sensor_data& inp_data, sys
 	out_data["comap_params"]["voltg"] = (float)inp_data.battery.voltage_gain;					// Added by SeowSK
 	out_data["comap_params"]["voltint"] = (float)inp_data.battery.voltage_int;					// Added by SeowSK
 }
+// End of Section 10
+//////////////////////////////////////////////////////////////////////////////////
