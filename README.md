@@ -10,10 +10,10 @@ I) Perform following on the remote raspberry pi machine
 	&emsp;a) mkdir /home/pi/.config/autostart  
 	&emsp;b) nano /home/pi/.config/autostart/modbustcplogger.desktop  
 	&emsp;c) Add the following contents verbatim in the file  
-	&emsp&emsp;   [Desktop Entry]  
-	&emsp&emsp;   Type = Application  
-	&emsp&emsp;   Name = ModbusTCPLogger  
-	&emsp&emsp;   Exec = xterm -hold -e '/home/pi/Desktop/modbustcplogger/modbustcplogger'  
+	&emsp;&emsp;   [Desktop Entry]  
+	&emsp;&emsp;   Type = Application  
+	&emsp;&emsp;   Name = ModbusTCPLogger  
+	&emsp;&emsp;   Exec = xterm -hold -e '/home/pi/Desktop/modbustcplogger/modbustcplogger'  
 	&emsp;e) Exit and save the above file  
 
 	
