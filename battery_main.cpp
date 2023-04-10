@@ -38,8 +38,18 @@
 //      3.8) Add your modbus connection, reconnection, and sensor population in "Section 9"
 //      3.9) Add a new double array of your new modbus variables in "Section 10", battery_json.cpp
 //          - This section is only used to convert data to JSON before sending to gateway.
-//      3.10) Declare the variables of your new modbus connection in "Section 11"
+//      3.10) Declare the variables of your new modbus connection in "Section 11", battery_json.h
 //          - This section is used to setup your <sensor_config> vector
+//      3.11) Add variable name to insert and a ? to values in "Section 12", sql_queries.cpp
+//          - This will allow the insertion of data after reading from probeSensors.
+//      3.12) Add a code chunk from "Section 13", sql_queries.cpp for your newly added variable in your new modbus to "Section 13"
+//          - Note that the variable type could be double or int.
+//      3.13) Add a fetch for your variable in your new modbus in "Section 14", sql_queries.cpp
+//          - Note that the order of your fetch is important.
+//          - This is used to retrieve data from the database.
+//      3.14) Use a tool to insert columns into the database. You can use DB Browser (SQLite)
+//
+//////////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
 #include <modbus.h>

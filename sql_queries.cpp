@@ -37,6 +37,8 @@ int sqlite_bind_int_status(sqlite3_stmt* stmt, int location, int sensor_value)
     return 0;
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+// Section 12
 error_data logValues(sqlite3 *db, sqlite3_stmt* stmt, sensor_data* current_sensor_data, int markToSent) 
 {	
     error.lineNo = -1;
@@ -101,7 +103,8 @@ error_data logValues(sqlite3 *db, sqlite3_stmt* stmt, sensor_data* current_senso
         VALUES 
         (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
     rc = sqlite3_prepare_v2(db, sql, -1,  &stmt,  0);
-
+// End of Section 12
+//////////////////////////////////////////////////////////////////////////////////
     if ( rc != SQLITE_OK) 
     { 
         printf("SQLLITEOK:%d \r\n", SQLITE_OK);
@@ -109,7 +112,8 @@ error_data logValues(sqlite3 *db, sqlite3_stmt* stmt, sensor_data* current_senso
         error.rc = rc;
         return error;
     }
-    
+//////////////////////////////////////////////////////////////////////////////////
+// Section 13
     rc = sqlite3_bind_double(stmt, loc_count, current_sensor_data->uptime);
     if ( rc != SQLITE_OK) 
     { 
@@ -603,6 +607,8 @@ error_data logValues(sqlite3 *db, sqlite3_stmt* stmt, sensor_data* current_senso
         error.rc = rc;
         return error;
     }
+// End of Section 13
+//////////////////////////////////////////////////////////////////////////////////
 
     rc = sqlite3_step(stmt);
     if ( (rc != SQLITE_DONE)) 
@@ -646,7 +652,8 @@ int getRowCount(sqlite3 *db)
     return rowCount;
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////
+// Section 14
 // Create a callback function  
 int sensorDataCallback(void *sensorDataPtr, int argc, char **argv, char **azColName)
 {
@@ -790,7 +797,8 @@ int sensorDataCallback(void *sensorDataPtr, int argc, char **argv, char **azColN
     // Return successful
     return 0;
 }
-
+// End of Section 14
+//////////////////////////////////////////////////////////////////////////////////
 error_data getSensorDataEntry(sqlite3 *db, sensor_data* sensorData)
 {
     sql = "SELECT * FROM 'dataLog' WHERE (sentToServer=0 AND markToSent=1) LIMIT 1;";
