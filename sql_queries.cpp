@@ -803,13 +803,13 @@ int sensorDataCallback(void *sensorDataPtr, int argc, char **argv, char **azColN
         fetched_sensor_data->battery.pcs1InvFreq = atof(argv[i]);                   // Added 06-12-2021
     else if(strcmp(azColName[i],"pcs1InternalTemperature") == 0)                    // Added 06-12-2021
         fetched_sensor_data->battery.pcs1InternalTemperature = atof(argv[i]);       // Added 06-12-2021
-    else if(strcmp(azColName[i],"bess1_voltage_gain") == 0)                               // Added by SeowSK
+    else if(strcmp(azColName[i],"bess1_voltage_gain") == 0)                         // Added by SeowSK
         fetched_sensor_data->battery.voltage_gain = atof(argv[i]);                  // Added by SeowSK
-    else if(strcmp(azColName[i],"bess1_voltage_int") == 0)                                // Added by SeowSK
+    else if(strcmp(azColName[i],"bess1_voltage_int") == 0)                          // Added by SeowSK
         fetched_sensor_data->battery.voltage_int = atof(argv[i]);                   // Added by SeowSK
-    else if(strcmp(azColName[i],"bess2_voltage_gain") == 0)                               // Added by SeowSK
+    else if(strcmp(azColName[i],"bess2_voltage_gain") == 0)                         // Added by SeowSK
         fetched_sensor_data->battery.voltage_gain = atof(argv[i]);                  // Added by SeowSK
-    else if(strcmp(azColName[i],"bess2_voltage_int") == 0)                                // Added by SeowSK
+    else if(strcmp(azColName[i],"bess2_voltage_int") == 0)                          // Added by SeowSK
         fetched_sensor_data->battery.voltage_int = atof(argv[i]);                   // Added by SeowSK
     }
 

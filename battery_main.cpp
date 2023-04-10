@@ -1128,6 +1128,8 @@ void read_system_config()
     sys_config.modbus_BMS_slave_id = system_json_config["modbus_BMS_slave_id"];
     sys_config.modbus_ComAP_ip = modbus_ComAP_ip;
     sys_config.modbus_ComAP_slave_id = system_json_config["modbus_ComAP_slave_id"];
+    sys_config.modbus_ComAP2_ip = modbus_ComAP_ip;
+    sys_config.modbus_ComAP2_slave_id = system_json_config["modbus_ComAP_slave_id"];
     sys_config.noOfModbusAttemptsAllowed = system_json_config["noOfModbusAttemptsAllowed"];
     sys_config.modbus_data_read_interval = system_json_config["modbus_data_read_interval"];
     sys_config.mads_auth_token = mads_auth_token;
