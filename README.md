@@ -7,14 +7,14 @@ Steps for code deployment
 I) Perform following on the remote raspberry pi machine
 	
 1) Create a .desktop file => to automatically start the application on pi reboot  
-	&emsp;a) mkdir /home/pi/.config/autostart  
-	&emsp;b) nano /home/pi/.config/autostart/modbustcplogger.desktop  
-	&emsp;c) Add the following contents verbatim in the file  
+	a) mkdir /home/pi/.config/autostart  
+	b) nano /home/pi/.config/autostart/modbustcplogger.desktop  
+	c) Add the following contents verbatim in the file  
 	&emsp;&emsp;   [Desktop Entry]  
 	&emsp;&emsp;   Type = Application  
 	&emsp;&emsp;   Name = ModbusTCPLogger  
 	&emsp;&emsp;   Exec = xterm -hold -e '/home/pi/Desktop/modbustcplogger/modbustcplogger'  
-	&emsp;e) Exit and save the above file  
+	e) Exit and save the above file  
 
 	
 2) 	Create directory and prepare pi for code execution  
