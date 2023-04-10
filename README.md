@@ -45,6 +45,8 @@ II) Perform following on a local raspberry pi machine
 3) Modify config.json according to current battery (Do not change the format, only modify the values)  
    Normal Mode -> when internet is working fine  
    Fast Mode -> when internet might have been turned off, and there is previous data records which needs to be sent to the server  
+
+   
 	a) asset_id => Battery Asset ID  
 	b) fastNoOfInternetAttemptsAllowed => Indicates how many attempts for sending the packet to the server are allowed in fast mode before restarting  
 	c) fast_packet_sent_interval => Indicates the packet sent interval in fast mode  
