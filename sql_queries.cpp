@@ -98,10 +98,12 @@ error_data logValues(sqlite3 *db, sqlite3_stmt* stmt, sensor_data* current_senso
         system0PVTotalPower,
         pcs1InvFreq,
         pcs1InternalTemperature,
-        voltage_gain,
-        voltage_int) 
+        bess1_voltage_gain,
+        bess1_voltage_int,
+        bess2_voltage_gain,
+        bess_voltage_int) 
         VALUES 
-        (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+        (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
     rc = sqlite3_prepare_v2(db, sql, -1,  &stmt,  0);
 // End of Section 12
 //////////////////////////////////////////////////////////////////////////////////
@@ -591,7 +593,7 @@ error_data logValues(sqlite3 *db, sqlite3_stmt* stmt, sensor_data* current_senso
     }
     loc_count++;
     
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.voltage_gain);// Added 06-12-2021
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bess1_voltage_gain);// Added 06-12-2021
     if ( rc != SQLITE_OK) 
     { 
         error.lineNo = __LINE__;
@@ -600,7 +602,25 @@ error_data logValues(sqlite3 *db, sqlite3_stmt* stmt, sensor_data* current_senso
     }
     loc_count++;
     
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.voltage_int);// Added 06-12-2021
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bess1_voltage_int);// Added 06-12-2021
+    if ( rc != SQLITE_OK) 
+    { 
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bess2_voltage_gain);// Added 06-12-2021
+    if ( rc != SQLITE_OK) 
+    { 
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+    
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bess2_voltage_int);// Added 06-12-2021
     if ( rc != SQLITE_OK) 
     { 
         error.lineNo = __LINE__;
@@ -783,9 +803,13 @@ int sensorDataCallback(void *sensorDataPtr, int argc, char **argv, char **azColN
         fetched_sensor_data->battery.pcs1InvFreq = atof(argv[i]);                   // Added 06-12-2021
     else if(strcmp(azColName[i],"pcs1InternalTemperature") == 0)                    // Added 06-12-2021
         fetched_sensor_data->battery.pcs1InternalTemperature = atof(argv[i]);       // Added 06-12-2021
-    else if(strcmp(azColName[i],"voltage_gain") == 0)                               // Added by SeowSK
+    else if(strcmp(azColName[i],"bess1_voltage_gain") == 0)                               // Added by SeowSK
         fetched_sensor_data->battery.voltage_gain = atof(argv[i]);                  // Added by SeowSK
-    else if(strcmp(azColName[i],"voltage_int") == 0)                                // Added by SeowSK
+    else if(strcmp(azColName[i],"bess1_voltage_int") == 0)                                // Added by SeowSK
+        fetched_sensor_data->battery.voltage_int = atof(argv[i]);                   // Added by SeowSK
+    else if(strcmp(azColName[i],"bess2_voltage_gain") == 0)                               // Added by SeowSK
+        fetched_sensor_data->battery.voltage_gain = atof(argv[i]);                  // Added by SeowSK
+    else if(strcmp(azColName[i],"bess2_voltage_int") == 0)                                // Added by SeowSK
         fetched_sensor_data->battery.voltage_int = atof(argv[i]);                   // Added by SeowSK
     }
 
