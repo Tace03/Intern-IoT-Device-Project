@@ -48,7 +48,10 @@
 //          - Note that the order of your fetch is important.
 //          - This is used to retrieve data from the database.
 //      3.14) Use a tool to insert columns into the database. You can use DB Browser (SQLite)
-//
+//      3.15) Update read config function is "Section 15"
+//          - Add modbus IP
+//          - Add modbus slave
+//      3.16) Update config.json on Rasberry PI
 //////////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
@@ -90,7 +93,7 @@ modbus_t *mbComAP2;
 // modbus port of the communiting device
 int mbBMSPort       = 1502;
 int mbComAPPort     = 502;
-int mbComAP2Port    = 502;
+int mbComAP2Port    = 503;
 
 // For Checking if Modbus is connected for each device
 static bool isBMSModbusConn     = false;
@@ -411,14 +414,14 @@ void populateSensorConfiguration()
 
 void populateComAPConfiguration()
 {
-    comap_configuration.push_back(new sensor_config(3098,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.voltage_gain)));
-    comap_configuration.push_back(new sensor_config(3099,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.voltage_int)));
+    comap_configuration.push_back(new sensor_config(3098,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.bess1_voltage_gain)));
+    comap_configuration.push_back(new sensor_config(3099,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.bess1_voltage_int)));
 }
 
 void populateComAP2Configuration()
 {
-    comap2_configuration.push_back(new sensor_config(3098,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.voltage_gain)));
-    comap2_configuration.push_back(new sensor_config(3099,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.voltage_int)));
+    comap2_configuration.push_back(new sensor_config(3098,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.bess2_voltage_gain)));
+    comap2_configuration.push_back(new sensor_config(3099,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.bess2_voltage_int)));
 }
 // End of Section 5
 //////////////////////////////////////////////////////////////////////////////////
@@ -957,6 +960,10 @@ void sendSensorData()
 // End of duplicated code for MADS
 //////////////////////////////////////////////////////////////////////////////////
         }
+        // else
+        // {
+        //     printf("A debug, invalid database.\n\b");
+        // }
 //////////////////////////////////////////////////////////////////////////////////
 // Section 2.3
         if(status_vft == 202)  
@@ -1110,7 +1117,8 @@ void save_system_config()
     o << std::setw(4) << system_conf << std::endl;  
 
 }
-
+//////////////////////////////////////////////////////////////////////////////////
+// Section 15
 void read_system_config()
 {
     json system_json_config;
@@ -1121,6 +1129,7 @@ void read_system_config()
 
     string modbus_BMS_ip = system_json_config["modbus_BMS_ip"];
     string modbus_ComAP_ip = system_json_config["modbus_ComAP_ip"];
+    string modbus_ComAP2_ip = system_json_config["modbus_ComAP2_ip"];
     string mads_auth_token = system_json_config["mads_auth_token"];
     string mads_url = system_json_config["mads_url"];
 
@@ -1128,8 +1137,8 @@ void read_system_config()
     sys_config.modbus_BMS_slave_id = system_json_config["modbus_BMS_slave_id"];
     sys_config.modbus_ComAP_ip = modbus_ComAP_ip;
     sys_config.modbus_ComAP_slave_id = system_json_config["modbus_ComAP_slave_id"];
-    sys_config.modbus_ComAP2_ip = modbus_ComAP_ip;
-    sys_config.modbus_ComAP2_slave_id = system_json_config["modbus_ComAP_slave_id"];
+    sys_config.modbus_ComAP2_ip = modbus_ComAP2_ip;
+    sys_config.modbus_ComAP2_slave_id = system_json_config["modbus_ComAP2_slave_id"];
     sys_config.noOfModbusAttemptsAllowed = system_json_config["noOfModbusAttemptsAllowed"];
     sys_config.modbus_data_read_interval = system_json_config["modbus_data_read_interval"];
     sys_config.mads_auth_token = mads_auth_token;
@@ -1140,7 +1149,8 @@ void read_system_config()
     sys_config.fastNoOfInternetAttemptsAllowed = system_json_config["fastNoOfInternetAttemptsAllowed"];
     sys_config.asset_id = system_json_config["asset_id"];
 }
-
+// End of Section 15
+//////////////////////////////////////////////////////////////////////////////////
 sqlite3_stmt *stmtDel;
 
 void createDBSpace()
@@ -1231,7 +1241,7 @@ void sensorsProbing (void)
                 noOfComAP2ModbusAttempts = 0;
 
                 printf("Probed Sensors, system uptime: [%ld] isComAP2ModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isComAP2ModbusConn, markToSent);
-                printCom2APData(actual_sensor_data);
+                printComAP2Data(actual_sensor_data);
             }
 // End of Section 8.3
 //////////////////////////////////////////////////////////////////////////////////

@@ -45,65 +45,61 @@ error_data logValues(sqlite3 *db, sqlite3_stmt* stmt, sensor_data* current_senso
     error.rc = -1;
     unsigned char loc_count = 1;
     //modified on 11 Aug 21
-    sql = "INSERT INTO dataLog(
-        uptime,timeStamp,
-        primary_charging_relay,
-        primary_discharge_relay,
-        primary_positive_pump,
-        primary_negative_pump,
-        balancing_valve,
-        positive_valve,
-        negative_valve,
-        state_of_charge,
-        bcu_voltage,
-        bcu_current,
-        bcu_power,
-        bcu_state_of_charge,
-        smoke_sensor,
-        bcu_ocv,
-        bcu_positive_tank_temp,
-        bcu_negative_tank_temp,
-        positive_tank_high_level_float,
-        negative_tank_high_level_float,
-        positive_tank_low_level_float,
-        negative_tank_low_level_float,
-        primary_stack_voltage,
-        primary_stack_current,
-        primary_stack_positive_pressure_sensor,
-        primary_stack_negative_pressure_sensor,
-        primary_stack_pressure_delta,
-        sensor_temp,
-        humidity,
-        pcs1_voltage,
-        pcs1_current,
-        pcs1_reactive_power,
-        pcs1_load_power,
-        pcs1_ac_supply_power,
-        sentToServer,
-        markToSent,
-        system_mode,
-        system_alarm_status,
-        bcu_mode_status,
-        bcu_hydrogen_sensor,
-        bcu_leakage_sensor,
-        b1_primary_stack_pressure_delta,
-        pcs1_dc_volts,
-        pcs1_dc_batt_current,
-        pcs1_dc_inverter_power,
-        pcs1_ac_out_status,
-        pcs1_fault_status,
-        pcs1_fan_speed,
-        system0PVEnable,
-        system0PVChargePower,
-        system0PVTotalPower,
-        pcs1InvFreq,
-        pcs1InternalTemperature,
-        bess1_voltage_gain,
-        bess1_voltage_int,
-        bess2_voltage_gain,
-        bess_voltage_int) 
-        VALUES 
-        (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+/*
+    sql = "INSERT INTO dataLog(uptime,timeStamp,primary_charging_relay,primary_discharge_relay,primary_positive_pump,primary_negative_pump,balancing_valve,positive_valve,+
+        "negative_valve," +
+        "state_of_charge," +
+        "bcu_voltage," +
+        "bcu_current," +
+        "bcu_power," +
+        "bcu_state_of_charge," +
+        "smoke_sensor," +
+        "bcu_ocv," +
+        "bcu_positive_tank_temp," +
+        "bcu_negative_tank_temp," +
+        "positive_tank_high_level_float," +
+        "negative_tank_high_level_float," +
+        "positive_tank_low_level_float," +
+        "negative_tank_low_level_float," +
+        "primary_stack_voltage," +
+        "primary_stack_current," +
+        "primary_stack_positive_pressure_sensor," +
+        "primary_stack_negative_pressure_sensor," +
+        "primary_stack_pressure_delta," +
+        "sensor_temp," +
+        "humidity," +
+        "pcs1_voltage," +
+        "pcs1_current," +
+        "pcs1_reactive_power," +
+        "pcs1_load_power," +
+        "pcs1_ac_supply_power," +
+        "sentToServer," +
+        "markToSent," +
+        "system_mode," +
+        "system_alarm_status," +
+        "bcu_mode_status," +
+        "bcu_hydrogen_sensor," +
+        "bcu_leakage_sensor," +
+        "b1_primary_stack_pressure_delta," +
+        "pcs1_dc_volts," +
+        "pcs1_dc_batt_current," +
+        "pcs1_dc_inverter_power," +
+        "pcs1_ac_out_status," +
+        "pcs1_fault_status," +
+        "pcs1_fan_speed," +
+        "system0PVEnable," +
+        "system0PVChargePower," +
+        "system0PVTotalPower," +
+        "pcs1InvFreq," +
+        "pcs1InternalTemperature," +
+        "bess1_voltage_gain," +
+        "bess1_voltage_int," +
+        "bess2_voltage_gain," +
+        "bess2_voltage_int)" + 
+        "VALUES" + 
+        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+*/
+    sql = "INSERT INTO dataLog(uptime,timeStamp,primary_charging_relay,primary_discharge_relay,primary_positive_pump,primary_negative_pump,balancing_valve,positive_valve,negative_valve,state_of_charge,bcu_voltage,bcu_current,bcu_power,bcu_state_of_charge,smoke_sensor,bcu_ocv,bcu_positive_tank_temp,bcu_negative_tank_temp,positive_tank_high_level_float,negative_tank_high_level_float,positive_tank_low_level_float,negative_tank_low_level_float,primary_stack_voltage,primary_stack_current,primary_stack_positive_pressure_sensor,primary_stack_negative_pressure_sensor,primary_stack_pressure_delta,sensor_temp,humidity,pcs1_voltage,pcs1_current,pcs1_reactive_power,pcs1_load_power,pcs1_ac_supply_power,sentToServer,markToSent,system_mode,system_alarm_status,bcu_mode_status,bcu_hydrogen_sensor,bcu_leakage_sensor,b1_primary_stack_pressure_delta,pcs1_dc_volts,pcs1_dc_batt_current,pcs1_dc_inverter_power,pcs1_ac_out_status,pcs1_fault_status,pcs1_fan_speed,system0PVEnable,system0PVChargePower,system0PVTotalPower,pcs1InvFreq,pcs1InternalTemperature,bess1_voltage_gain,bess1_voltage_int,bess2_voltage_gain,bess2_voltage_int) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
     rc = sqlite3_prepare_v2(db, sql, -1,  &stmt,  0);
 // End of Section 12
 //////////////////////////////////////////////////////////////////////////////////
@@ -804,13 +800,13 @@ int sensorDataCallback(void *sensorDataPtr, int argc, char **argv, char **azColN
     else if(strcmp(azColName[i],"pcs1InternalTemperature") == 0)                    // Added 06-12-2021
         fetched_sensor_data->battery.pcs1InternalTemperature = atof(argv[i]);       // Added 06-12-2021
     else if(strcmp(azColName[i],"bess1_voltage_gain") == 0)                         // Added by SeowSK
-        fetched_sensor_data->battery.voltage_gain = atof(argv[i]);                  // Added by SeowSK
+        fetched_sensor_data->battery.bess1_voltage_gain = atof(argv[i]);                  // Added by SeowSK
     else if(strcmp(azColName[i],"bess1_voltage_int") == 0)                          // Added by SeowSK
-        fetched_sensor_data->battery.voltage_int = atof(argv[i]);                   // Added by SeowSK
+        fetched_sensor_data->battery.bess1_voltage_int = atof(argv[i]);                   // Added by SeowSK
     else if(strcmp(azColName[i],"bess2_voltage_gain") == 0)                         // Added by SeowSK
-        fetched_sensor_data->battery.voltage_gain = atof(argv[i]);                  // Added by SeowSK
+        fetched_sensor_data->battery.bess2_voltage_gain = atof(argv[i]);                  // Added by SeowSK
     else if(strcmp(azColName[i],"bess2_voltage_int") == 0)                          // Added by SeowSK
-        fetched_sensor_data->battery.voltage_int = atof(argv[i]);                   // Added by SeowSK
+        fetched_sensor_data->battery.bess2_voltage_int = atof(argv[i]);                   // Added by SeowSK
     }
 
     if(i==argc)
