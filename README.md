@@ -147,3 +147,7 @@ Documentation: Written by SeowSK
           &emsp;&emsp;- Note that the order of your fetch is important.  
           &emsp;&emsp;- This is used to retrieve data from the database.  
       3.14) Use a tool to insert columns into the database. You can use DB Browser (SQLite)  
+      3.15) Update read config function is "Section 15"
+          &emsp;&emsp;- Add modbus IP
+          &emsp;&emsp;- Add modbus slave
+      3.16) Update config.json on Rasberry PI
