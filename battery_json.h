@@ -102,12 +102,6 @@ typedef struct __attribute__((__packed__)) _battery_data
     float system0PVTotalPower;
     float pcs1InvFreq;
     float pcs1InternalTemperature;
-
-    float bess1_voltage_gain;             // Added by SeowSK
-    float bess1_voltage_int;              // Added by SeowSK
-
-    float bess2_voltage_gain;             // Added by SeowSK
-    float bess2_voltage_int;              // Added by SeowSK
 } battery_data;
 // End of Section 11
 //////////////////////////////////////////////////////////////////////////////////

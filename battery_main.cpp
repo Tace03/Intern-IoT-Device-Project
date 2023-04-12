@@ -87,21 +87,13 @@ system_config sys_config;
 // Section 3
 // For modbus communication
 modbus_t *mbBMS;
-modbus_t *mbComAP;
-modbus_t *mbComAP2;
 
 // modbus port of the communiting device
 int mbBMSPort       = 1502;
-int mbComAPPort     = 502;
-int mbComAP2Port    = 503;
 
 // For Checking if Modbus is connected for each device
 static bool isBMSModbusConn     = false;
-static bool isComAPModbusConn   = false;
-static bool isComAP2ModbusConn  = false;
 int noOfBMSModbusAttempts       = 0;
-int noOfComAPModbusAttempts     = 0;
-int noOfComAP2ModbusAttempts    = 0;
 
 std::vector<sensor_config*> sensor_configuration;
 std::vector<sensor_config*> comap_configuration;
@@ -109,8 +101,6 @@ std::vector<sensor_config*> comap2_configuration;
 
 // For checking if all modbus variables are read
 uint16_t resCode    = 0;
-uint16_t resCode2   = 0;
-uint16_t resCode3   = 0;
 // End of Section 3
 //////////////////////////////////////////////////////////////////////////////////
 uint16_t sensor_value[2] ={0};
@@ -203,74 +193,6 @@ void reconnectToBMSModbus()
     else
     {
         printf("Do nothing to BMS MODBUS, should come back later. \r\n");
-    }
-}
-
-void reconnectToComAPModbus()
-{
-    if(mbComAP!= NULL)
-    {
-        modbus_close(mbComAP);
-        modbus_free(mbComAP);
-
-        mbComAP = modbus_new_tcp(sys_config.modbus_ComAP_ip.c_str(), mbComAPPort);
-        modbus_set_slave(mbComAP, sys_config.modbus_ComAP_slave_id);
-
-        if(mbComAP!= NULL)
-        {
-            if (modbus_connect(mbComAP) == -1)
-            {
-                fprintf(stdout, "ComAP Modbus reConnection failed: %s\n", modbus_strerror(errno));
-                isComAPModbusConn = false;
-            }
-            else
-            {
-                printf("ComAP Modbus connection successful.");
-                isComAPModbusConn = true;
-            }
-        }
-        else
-        {
-            printf("Could not connect over ComAP MODBUS TCP. \r\n");
-        }
-    }
-    else
-    {
-        printf("Do nothing to ComAP MODBUS, should come back later. \r\n");
-    }
-}
-
-void reconnectToComAP2Modbus()
-{
-    if(mbComAP2!= NULL)
-    {
-        modbus_close(mbComAP2);
-        modbus_free(mbComAP2);
-
-        mbComAP2 = modbus_new_tcp(sys_config.modbus_ComAP2_ip.c_str(), mbComAP2Port);
-        modbus_set_slave(mbComAP2, sys_config.modbus_ComAP2_slave_id);
-
-        if(mbComAP2!= NULL)
-        {
-            if (modbus_connect(mbComAP2) == -1)
-            {
-                fprintf(stdout, "ComAP 2 Modbus reConnection failed: %s\n", modbus_strerror(errno));
-                isComAP2ModbusConn = false;
-            }
-            else
-            {
-                printf("ComAP 2 Modbus connection successful.");
-                isComAP2ModbusConn = true;
-            }
-        }
-        else
-        {
-            printf("Could not connect over ComAP 2 MODBUS TCP. \r\n");
-        }
-    }
-    else
-    {
-        printf("Do nothing to ComAP 2 MODBUS, should come back later. \r\n");
     }
 }
 // End of Section 4
@@ -411,18 +333,6 @@ void populateSensorConfiguration()
     sensor_configuration.push_back(new sensor_config(1222,reg_type::INPUT_REG,0.01f,&(latest_battery_data.pcs1InternalTemperature)));
     */
 }
-
-void populateComAPConfiguration()
-{
-    comap_configuration.push_back(new sensor_config(3098,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.bess1_voltage_gain)));
-    comap_configuration.push_back(new sensor_config(3099,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.bess1_voltage_int)));
-}
-
-void populateComAP2Configuration()
-{
-    comap2_configuration.push_back(new sensor_config(3098,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.bess2_voltage_gain)));
-    comap2_configuration.push_back(new sensor_config(3099,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.bess2_voltage_int)));
-}
 // End of Section 5
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -498,28 +408,6 @@ void printSensorData(sensor_data data)
     printf("pcs1_fault_status : [%f]\r\n",data.battery.pcs1_fault_status);          // Added on 11 Aug 21
     printf("pcs1_fan_speed : [%f]\r\n",data.battery.pcs1_fan_speed);                // Added on 11 Aug 21
     */
-}
-void printComAPData(sensor_data data)
-{
-    std::cout << std::right;
-    std::cout << std::setfill('-');
-    std::cout << std::setw(45) << "ComAP Data" << std::endl;
-    std::cout << std::setfill(' ');
-    std::cout << std::left;
-    std::cout << std::setw(40) << "voltage_gain" << std::setw(15) << data.battery.bess1_voltage_gain << std::endl;
-    std::cout << std::setw(40) << "voltage_int" << std::setw(15) << data.battery.bess1_voltage_int << std::endl;
-    std::cout << "==================================================" << std::endl;
-}
-void printComAP2Data(sensor_data data)
-{
-    std::cout << std::right;
-    std::cout << std::setfill('-');
-    std::cout << std::setw(45) << "ComAP 2 Data" << std::endl;
-    std::cout << std::setfill(' ');
-    std::cout << std::left;
-    std::cout << std::setw(40) << "voltage_gain" << std::setw(15) << data.battery.bess2_voltage_gain << std::endl;
-    std::cout << std::setw(40) << "voltage_int" << std::setw(15) << data.battery.bess2_voltage_int << std::endl;
-    std::cout << "==================================================" << std::endl;
 }
 // End of Section 6
 //////////////////////////////////////////////////////////////////////////////////
@@ -622,208 +510,6 @@ void probeBMSSensors()
         printf("BMS Modbus is not connected. Trying to reconnect!\r\n");
         reconnectToBMSModbus();
         noOfBMSModbusAttempts = 0;
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(sys_config.modbus_data_read_interval));
-}
-
-void probeComAPSensors()
-{
-    if(isComAPModbusConn)
-    {
-        // printf("Probing sensors to read modbus data\r\n");
-
-        for(resCode2 = 0; resCode2 < comap_configuration.size(); resCode2++)
-        {
-            sensor_config* current_reg = comap_configuration.at(resCode2); 
-            int addr = (current_reg->reg_offset);
-            int readCode = 0;
-
-            if(current_reg->regType == reg_type::HOLDING_REG)
-            {
-                readCode = modbus_read_registers(mbComAP, addr , current_reg->noOfRegsToRead, sensor_value);
-            }
-            else 
-            {
-                readCode = modbus_read_input_registers(mbComAP, addr , current_reg->noOfRegsToRead, sensor_value);
-            }
-            if(readCode == -1)
-            {
-                printf("ERROR: %s\n", modbus_strerror(errno));
-                isComAPModbusConn = false;
-                break;
-            }
-            else
-            {
-                // printf(" sensor_value : [%d]\r\n",(int16_t)sensor_value[0]);
-                // *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
-                // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
-                // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
-
-                if(current_reg->noOfRegsToRead == 1)
-                {
-                    float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);
-                    if(current_reg->valueType == data_type::DT_BOOL)
-                    {
-                        *(current_reg->dest_bool_ptr) = (bool)sensor_value[0];
-                    }
-                    if(current_reg->valueType == data_type::DT_INT16)
-                    {
-                        *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
-                    //   printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
-                    }
-                    if(current_reg->valueType == data_type::DT_FLOAT)
-                    {
-                        float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);  
-                        // *(current_reg->dest_float_ptr) = (float)sensor_value[0];
-                        *(current_reg->dest_float_ptr) = scaledValue;
-                        // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
-                    }
-                    if(current_reg->valueType == data_type::DT_INT32)
-                    {
-                        *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
-                        // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
-                    }
-                }
-                else if(current_reg->noOfRegsToRead == 2)
-                {
-                    float scaledValue = ((((int32_t)sensor_value[0] << 16) | sensor_value[1])*current_reg->scale);
-                    if(current_reg->valueType == data_type::DT_UINT32)
-                    {
-                        *(current_reg->dest_int32_ptr) = (int32_t)scaledValue;
-                    }
-                    else if(current_reg->valueType == data_type::DT_FLOAT)
-                    {
-                        *(current_reg->dest_float_ptr) = scaledValue;
-                    } 
-                    else if(current_reg->valueType == data_type::DT_BOOL)
-                    {
-                        *(current_reg->dest_bool_ptr) = (bool)scaledValue;
-                    }
-                }
-            }
-        }
-    }
-    else if(noOfComAPModbusAttempts < sys_config.noOfModbusAttemptsAllowed)
-    {
-        // Will be unlocked in mtx_error_msg
-        mtx_error_msg.lock();
-        sprintf(errorMsg, "ComAP Modbus Read Failed. Trying another attempt! Line No %d", __LINE__);
-        logErrorInDB();
-
-        printf("ComAP Modbus Read Failed. Trying another attempt!\r\n");
-        noOfComAPModbusAttempts++;
-    }  
-    else
-    {
-        // we have reached the limit for no of attempts... sleep for a while and then try again
-        mtx_error_msg.lock();
-        sprintf(errorMsg, "ComAP Modbus might not be connected. Trying to reconnect! Line No %d", __LINE__);
-        logErrorInDB();
-
-        printf("ComAP Modbus is not connected. Trying to reconnect!\r\n");
-        reconnectToComAPModbus();
-        noOfComAPModbusAttempts = 0;
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(sys_config.modbus_data_read_interval));
-}
-
-void probeComAP2Sensors()
-{
-    if(isComAP2ModbusConn)
-    {
-        // printf("Probing sensors to read modbus data\r\n");
-
-        for(resCode3 = 0; resCode3 < comap2_configuration.size(); resCode3++)
-        {
-            sensor_config* current_reg = comap2_configuration.at(resCode3); 
-            int addr = (current_reg->reg_offset);
-            int readCode = 0;
-
-            if(current_reg->regType == reg_type::HOLDING_REG)
-            {
-                readCode = modbus_read_registers(mbComAP2, addr , current_reg->noOfRegsToRead, sensor_value);
-            }
-            else 
-            {
-                readCode = modbus_read_input_registers(mbComAP2, addr , current_reg->noOfRegsToRead, sensor_value);
-            }
-            if(readCode == -1)
-            {
-                printf("ERROR: %s\n", modbus_strerror(errno));
-                isComAP2ModbusConn = false;
-                break;
-            }
-            else
-            {
-                // printf(" sensor_value : [%d]\r\n",(int16_t)sensor_value[0]);
-                // *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
-                // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
-                // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
-
-                if(current_reg->noOfRegsToRead == 1)
-                {
-                    float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);
-                    if(current_reg->valueType == data_type::DT_BOOL)
-                    {
-                        *(current_reg->dest_bool_ptr) = (bool)sensor_value[0];
-                    }
-                    if(current_reg->valueType == data_type::DT_INT16)
-                    {
-                        *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
-                    //   printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
-                    }
-                    if(current_reg->valueType == data_type::DT_FLOAT)
-                    {
-                        float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);  
-                        // *(current_reg->dest_float_ptr) = (float)sensor_value[0];
-                        *(current_reg->dest_float_ptr) = scaledValue;
-                        // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
-                    }
-                    if(current_reg->valueType == data_type::DT_INT32)
-                    {
-                        *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
-                        // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
-                    }
-                }
-                else if(current_reg->noOfRegsToRead == 2)
-                {
-                    float scaledValue = ((((int32_t)sensor_value[0] << 16) | sensor_value[1])*current_reg->scale);
-                    if(current_reg->valueType == data_type::DT_UINT32)
-                    {
-                        *(current_reg->dest_int32_ptr) = (int32_t)scaledValue;
-                    }
-                    else if(current_reg->valueType == data_type::DT_FLOAT)
-                    {
-                        *(current_reg->dest_float_ptr) = scaledValue;
-                    } 
-                    else if(current_reg->valueType == data_type::DT_BOOL)
-                    {
-                        *(current_reg->dest_bool_ptr) = (bool)scaledValue;
-                    }
-                }
-            }
-        }
-    }
-    else if(noOfComAP2ModbusAttempts < sys_config.noOfModbusAttemptsAllowed)
-    {
-        // Will be unlocked in mtx_error_msg
-        mtx_error_msg.lock();
-        sprintf(errorMsg, "ComAP 2 Modbus Read Failed. Trying another attempt! Line No %d", __LINE__);
-        logErrorInDB();
-
-        printf("ComAP 2 Modbus Read Failed. Trying another attempt!\r\n");
-        noOfComAP2ModbusAttempts++;
-    }  
-    else
-    {
-        // we have reached the limit for no of attempts... sleep for a while and then try again
-        mtx_error_msg.lock();
-        sprintf(errorMsg, "ComAP 2 Modbus might not be connected. Trying to reconnect! Line No %d", __LINE__);
-        logErrorInDB();
-
-        printf("ComAP 2 Modbus is not connected. Trying to reconnect!\r\n");
-        reconnectToComAP2Modbus();
-        noOfComAP2ModbusAttempts = 0;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(sys_config.modbus_data_read_interval));
 }
@@ -1127,18 +813,12 @@ void read_system_config()
     std::ifstream i("/home/pi/Desktop/modbustcplogger/config.json");
     i >> system_json_config;
 
-    string modbus_BMS_ip = system_json_config["modbus_BMS_ip"];
-    string modbus_ComAP_ip = system_json_config["modbus_ComAP_ip"];
-    string modbus_ComAP2_ip = system_json_config["modbus_ComAP2_ip"];
+    string modbus_BMS_ip = system_json_config["modbus_ip"];
     string mads_auth_token = system_json_config["mads_auth_token"];
     string mads_url = system_json_config["mads_url"];
 
     sys_config.modbus_BMS_ip = modbus_BMS_ip;
-    sys_config.modbus_BMS_slave_id = system_json_config["modbus_BMS_slave_id"];
-    sys_config.modbus_ComAP_ip = modbus_ComAP_ip;
-    sys_config.modbus_ComAP_slave_id = system_json_config["modbus_ComAP_slave_id"];
-    sys_config.modbus_ComAP2_ip = modbus_ComAP2_ip;
-    sys_config.modbus_ComAP2_slave_id = system_json_config["modbus_ComAP2_slave_id"];
+    sys_config.modbus_BMS_slave_id = system_json_config["modbus_slave_id"];
     sys_config.noOfModbusAttemptsAllowed = system_json_config["noOfModbusAttemptsAllowed"];
     sys_config.modbus_data_read_interval = system_json_config["modbus_data_read_interval"];
     sys_config.mads_auth_token = mads_auth_token;
@@ -1204,15 +884,11 @@ void sensorsProbing (void)
 //////////////////////////////////////////////////////////////////////////////////
 // Section 8.1
         probeBMSSensors();
-        probeComAPSensors();
-        probeComAP2Sensors();
 // End of Section 8.1
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 // Section 8.2
-        if((resCode == sensor_configuration.size() && isBMSModbusConn) || 
-            (resCode2 == comap_configuration.size() && isComAPModbusConn) || 
-            (resCode3 == comap2_configuration.size() && isComAP2ModbusConn))
+        if(resCode == sensor_configuration.size() && isBMSModbusConn)
 // End of Section 8.2
 //////////////////////////////////////////////////////////////////////////////////
         {
@@ -1226,22 +902,6 @@ void sensorsProbing (void)
 
                 printf("Probed Sensors, system uptime: [%ld] isBMSModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isBMSModbusConn, markToSent);
                 printSensorData(actual_sensor_data);
-            }
-            if(resCode2 == comap_configuration.size())
-            {
-                resCode2 = 0;
-                noOfComAPModbusAttempts = 0;
-
-                printf("Probed Sensors, system uptime: [%ld] isComAPModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isComAPModbusConn, markToSent);
-                printComAPData(actual_sensor_data);
-            }
-            if(resCode3 == comap2_configuration.size())
-            {
-                resCode3 = 0;
-                noOfComAP2ModbusAttempts = 0;
-
-                printf("Probed Sensors, system uptime: [%ld] isComAP2ModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isComAP2ModbusConn, markToSent);
-                printComAP2Data(actual_sensor_data);
             }
 // End of Section 8.3
 //////////////////////////////////////////////////////////////////////////////////
@@ -1287,10 +947,6 @@ int main(void)
     cout << "----------------Current Configuration--------------" << endl;
     cout << "BMS Modbus IP address: " << sys_config.modbus_BMS_ip << endl;
     cout << "BMS Modbus Slave ID: " << sys_config.modbus_BMS_slave_id << endl;
-    cout << "ComAP Modbus IP address: " << sys_config.modbus_ComAP_ip << endl;
-    cout << "ComAP Modbus Slave ID: " << sys_config.modbus_ComAP_slave_id << endl;
-    cout << "ComAP 2 Modbus IP address: " << sys_config.modbus_ComAP2_ip << endl;
-    cout << "ComAP 2 Modbus Slave ID: " << sys_config.modbus_ComAP2_slave_id << endl;
     cout << "No of Modbus attempts allowed before reconnecting: " << sys_config.noOfModbusAttemptsAllowed << endl;
     cout << "Modbus data read interval: " << sys_config.modbus_data_read_interval << endl;
     cout << "MADS Authorization Bearer Token: " << sys_config.mads_auth_token << endl;
@@ -1305,12 +961,6 @@ int main(void)
 // Section 9
     mbBMS = modbus_new_tcp(sys_config.modbus_BMS_ip.c_str(), mbBMSPort);
     modbus_set_slave(mbBMS,sys_config.modbus_BMS_slave_id);
-
-    mbComAP = modbus_new_tcp(sys_config.modbus_ComAP_ip.c_str(), mbComAPPort);
-    modbus_set_slave(mbComAP,sys_config.modbus_ComAP_slave_id);
-
-    mbComAP2 = modbus_new_tcp(sys_config.modbus_ComAP2_ip.c_str(), mbComAP2Port);
-    modbus_set_slave(mbComAP2,sys_config.modbus_ComAP2_slave_id);
 
     if (modbus_connect(mbBMS) == -1) 
     {
@@ -1327,39 +977,7 @@ int main(void)
         isBMSModbusConn = true;
     }
 
-    if (modbus_connect(mbComAP) == -1) 
-    {
-        fprintf(stdout, "ComAP Modbus connection failed: %s\n", modbus_strerror(errno));
-        isComAPModbusConn = false;
-
-        mtx_error_msg.lock();
-        sprintf(errorMsg, "ComAP Modbus connection failed: %s Line No %d", modbus_strerror(errno), __LINE__);
-        logErrorInDB();
-    }
-    else
-    {
-        printf("Sucessful ComAP Modbus connection.\n");
-        isComAPModbusConn = true;
-    }
-
-    if (modbus_connect(mbComAP2) == -1) 
-    {
-        fprintf(stdout, "ComAP 2 Modbus connection failed: %s\n", modbus_strerror(errno));
-        isComAP2ModbusConn = false;
-
-        mtx_error_msg.lock();
-        sprintf(errorMsg, "ComAP 2 Modbus connection failed: %s Line No %d", modbus_strerror(errno), __LINE__);
-        logErrorInDB();
-    }
-    else
-    {
-        printf("Sucessful ComAP 2 Modbus connection.\n");
-        isComAP2ModbusConn = true;
-    }
-
     populateSensorConfiguration();
-    populateComAPConfiguration();
-    populateComAP2Configuration();
 
     printf("Sensor Configuration populated\n\r");
 // End of Section 9
