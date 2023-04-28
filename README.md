@@ -1,48 +1,125 @@
-# Author: Naina Gupta
+# Original Author: Naina Gupta
 July'2021 - ModbusTCPLogger v1.0
+## Contributing Author: Sin Kiat, Saravanan
 
 Steps for code deployment
 ------------------------------------------------------------------------
 
-I) Perform following on the remote raspberry pi machine
-	
-1) Create a .desktop file => to automatically start the application on pi reboot  
-	a) mkdir /home/pi/.config/autostart  
-	b) nano /home/pi/.config/autostart/modbustcplogger.desktop  
-	c) Add the following contents verbatim in the file  
-	&emsp;&emsp;   [Desktop Entry]  
-	&emsp;&emsp;   Type = Application  
-	&emsp;&emsp;   Name = ModbusTCPLogger  
-	&emsp;&emsp;   Exec = xterm -hold -e '/home/pi/Desktop/modbustcplogger/modbustcplogger'  
-	e) Exit and save the above file  
+Steps to deploy to linux machine.
+- The following steps will use a Raspberry PI machine as examples.
 
-	
-2) 	Create directory and prepare pi for code execution  
-	a) cd Desktop  
-	b) Run mkdir modbustcplogger  
-	c) Run sudo apt-get install libmodbus-dev  
-	d) Run sudo apt-get install libsqlite3-dev  
-	e) Run sudo apt-get install sqlite3  
-	f) Run sudo apt-get install nlohmann-json-dev  
-	g) Run sudo apt-get install libssl-dev  
-	
-	
-II) Perform following on a local raspberry pi machine  
+1)  Auto Start Up of device  
+Method a):  
+```
+mkdir /home/pi/.config/autostart  
+```
+```
+nano /home/pi/.config/autostart/modbustcplogger.desktop
+```
+Adding the following content into the file.
+```
+[Desktop Entry]  
+Type = Application  
+Name = ModbusTCPLogger  
+Exec = xterm -hold -e '/home/pi/Desktop/modbustcplogger/modbustcplogger'  
+```
+```
+ctrl+s  
+ctrl+x  
+```
+Method b):  
+Check for rc-local. All linux system have rc-local service, thus check for the file location or rc.local
+```
+systemctl status rc-local
+```
+Get the file location of rc.local and modify it. The file may or may not exist but the executed directory can be found int the above status command. Modify the below directory to that of your system.
+```
+sudo nano /etc/rc.local
+```
+Copy and paste the following content into the file.
+```
+#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
 
-1) Compiling the code  
-	a) cd Desktop  
-	b) Run mkdir modbustcplogger, cd modbustcplogger and copy the code inside this directory.  
-	c) Run sudo apt-get install libmodbus-dev  
-	d) Run sudo apt-get install libsqlite3-dev  
-	e) Run sudo apt-get install sqlite3  
-	f) Run sudo apt-get install nlohmann-json-dev  
-	g) Run sudo apt-get install libssl-dev  
-	h) Run make command to compile the code  
+# Print the IP address
+_IP=$(hostname -I) || true
+if [ "$_IP" ]; then
+  printf "My IP address is %s\n" "$_IP"
+fi
+sleep 10
+/home/pi/Desktop/modbustcplogger/start.sh
+exit 0
+```
+Modify the file to be executatble
+```
+sudo chmod +x /etc/rc.local
+```
+The startup script in the directory copied from the above file content.
+```
+sudo nano /home/pi/Desktop/modbusctplogger/start.sh
+```
+Copy and paste the following content into the file.
+```
+sudo tmux new-session -d -s start 'sudo /home/pi/Desktop/modbustcplogger/modbustcplogger'
+sudo tmux set-option -t start:0 remain-on-exit
+```
+Modify the file to be executable
+```
+sudo chmod +x /home/pi/Desktop/modbusctplogger/start.sh
+```
+
+2) 	Create directory and prepare your linux machine to compile and execute the program.  
+```
+cd Desktop
+```
+```
+mkdir modbustcplogger
+```
+```
+sudo apt-get install libmodbus-dev
+```
+```
+sudo apt-get install libsqlite3-dev
+```
+```
+sudo apt-get install sqlite3
+```
+```
+sudo apt-get install nlohmann-json-dev  
+```
+```
+sudo apt-get install libssl-dev  
+```	
+```
+sudo apt-get install tmux  
+```	
 	
-2) Creating database files for deployment  
-	a) Run sh ./create_database.sh command to create sensordata and statusdata databases.  
+3)  Compiling the program  
+Clear previous build before you rebuild the project by running
+```
+make clean
+```
+Compile your project.
+```
+make
+```	
+4)  Creating database files for deployment  
+Run the following command to create or recreate sensordata and statusdata databases. 
+```
+sh ./create_database.sh
+```  
 	
-3) Modify config.json according to current battery (Do not change the format, only modify the values)  
+5)  Modify config.json according to current battery (Do not change the format, only modify the values)  
    Normal Mode -> when internet is working fine  
    Fast Mode -> when internet might have been turned off, and there is previous data records which needs to be sent to the server  
 
@@ -64,7 +141,7 @@ II) Perform following on a local raspberry pi machine
 	c) scp -P <PortNo> ./db_statusdata.db pi@<Remote-IP-Address>:/home/pi/Desktop/modbustcplogger  
 	d) scp -P <PortNo> ./config.json pi@<Remote-IP-Address>:/home/pi/Desktop/modbustcplogger  
 	
-III) Ensure MADS platform is setup and mapping is correct  
+Ensure MADS platform is setup and mapping is correct  
 	&emsp;Parameter Mapping  
 	&emsp;prcr -> primary_charging_relay  
 	&emsp;prdr -> primary_discharge_relay  
@@ -98,10 +175,51 @@ III) Ensure MADS platform is setup and mapping is correct
 	&emsp;pcrpow -> pcs1_reactive_power  
 	&emsp;pclpow -> pcs1_load_power  
 	&emsp;pcacpow -> pcs1_ac_supply_power  
-	
-IV) Restart remote raspberry pi machine to apply changes and execute the code (verify the code is executing after boot-up)  
 
-# Notes SeowSK
+6)  Update system time
+```
+sudo apt-get install ntp
+```
+```
+sudo nano /etc/ntp.conf
+```
+Copy and paste the following content and replace the default server references in the file.
+```
+server 0.sg.pool.ntp.org
+server 1.sg.pool.ntp.org
+server 2.sg.pool.ntp.org
+server 3.sg.pool.ntp.org
+```
+Restart the NTP
+```
+sudo service ntp restart
+```
+Check for the status
+```
+sudo service ntp status
+```
+
+8)  Restart remote raspberry pi machine to apply changes and execute the code (verify the code is executing after boot-up)  
+
+9)  Common Errors  
+&emsp;a) std::invalid argument
+- There is 3 lines of code within battery_main.cpp that reference to a static URL. Those url could be invalid.
+```
+std::ifstream i("/home/pi/Desktop/modbustcplogger/config.json");
+const char * db_data = "/home/pi/Desktop/modbustcplogger/db_sensordata.db";
+const char * db_statusdata = "/home/pi/Desktop/modbustcplogger/db_statusdata.db";
+```
+&emsp;b) <modbus.h> not found.
+- Open up ```Makefile``` and modify the following line.
+```
+INC = -I/usr/include/modbus 
+```
+or
+```
+INC = -I /usr/include/modbus 
+```
+
+# SeowSK notes for modifying the files
 Documentation: Written by SeowSK
 
  1) Adding Multiple Servers (For data migration):  
