@@ -9,7 +9,8 @@ Steps to deploy to linux machine.
 - The following steps will use a Raspberry PI machine as examples.
 
 1)  Auto Start Up of device  
-Method a):  
+
+**Method a):**  
 ```
 mkdir /home/pi/.config/autostart  
 ```
@@ -27,7 +28,7 @@ Exec = xterm -hold -e '/home/pi/Desktop/modbustcplogger/modbustcplogger'
 ctrl+s  
 ctrl+x  
 ```
-Method b):  
+**Method b):**  
 Check for rc-local. All linux system have rc-local service, thus check for the file location or rc.local
 ```
 systemctl status rc-local
@@ -105,6 +106,7 @@ sudo apt-get install tmux
 ```	
 	
 3)  Compiling the program  
+
 Clear previous build before you rebuild the project by running
 ```
 make clean
@@ -114,6 +116,7 @@ Compile your project.
 make
 ```	
 4)  Creating database files for deployment  
+
 Run the following command to create or recreate sensordata and statusdata databases. 
 ```
 sh ./create_database.sh
@@ -202,7 +205,7 @@ sudo service ntp status
 8)  Restart remote raspberry pi machine to apply changes and execute the code (verify the code is executing after boot-up)  
 
 9)  Common Errors  
-&emsp;a) std::invalid argument
+a) std::invalid argument
 - There is 3 lines of code within battery_main.cpp that reference to a static URL. Those url could be invalid.
 ```
 std::ifstream i("/home/pi/Desktop/modbustcplogger/config.json");
