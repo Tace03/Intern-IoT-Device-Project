@@ -105,7 +105,7 @@ sudo apt-get install libssl-dev
 sudo apt-get install tmux  
 ```	
 	
-3)  Compiling the program  
+**3)  Compiling the program**  
 
 Clear previous build before you rebuild the project by running
 ```
