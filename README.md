@@ -8,7 +8,7 @@ Steps for code deployment
 Steps to deploy to linux machine.
 - The following steps will use a Raspberry PI machine as examples.
 
-1)  Auto Start Up of device  
+**1)  Auto Start Up of device**  
 
 **Method a):**  
 ```
@@ -79,7 +79,7 @@ Modify the file to be executable
 sudo chmod +x /home/pi/Desktop/modbusctplogger/start.sh
 ```
 
-2) 	Create directory and prepare your linux machine to compile and execute the program.  
+**2) 	Create directory and prepare your linux machine to compile and execute the program.**  
 ```
 cd Desktop
 ```
@@ -105,7 +105,7 @@ sudo apt-get install libssl-dev
 sudo apt-get install tmux  
 ```	
 	
-3)  Compiling the program  
+**3)  Compiling the program**  
 
 Clear previous build before you rebuild the project by running
 ```
@@ -115,14 +115,14 @@ Compile your project.
 ```
 make
 ```	
-4)  Creating database files for deployment  
+**4)  Creating database files for deployment**  
 
 Run the following command to create or recreate sensordata and statusdata databases. 
 ```
 sh ./create_database.sh
 ```  
 	
-5)  Modify config.json according to current battery (Do not change the format, only modify the values)  
+**5)  Modify config.json according to current battery (Do not change the format, only modify the values)**  
    Normal Mode -> when internet is working fine  
    Fast Mode -> when internet might have been turned off, and there is previous data records which needs to be sent to the server  
 
@@ -138,48 +138,48 @@ sh ./create_database.sh
 	j) normalNoOfInternetAttemptsAllowed => Indicates how many attempts for sending the packet to the server are allowed in normal mode before restarting  
 	k) normal_packet_sent_interval => Indicates the packet sent interval in normal mode  
 	
-4) Send files to remote machine for execution  
+**6) Send files to remote machine for execution**  
 	a) scp -P <PortNo> ./modbustcplogger pi@<Remote-IP-Address>:/home/pi/Desktop/modbustcplogger  
 	b) scp -P <PortNo> ./db_sensordata.db pi@<Remote-IP-Address>:/home/pi/Desktop/modbustcplogger  
 	c) scp -P <PortNo> ./db_statusdata.db pi@<Remote-IP-Address>:/home/pi/Desktop/modbustcplogger  
 	d) scp -P <PortNo> ./config.json pi@<Remote-IP-Address>:/home/pi/Desktop/modbustcplogger  
 	
-Ensure MADS platform is setup and mapping is correct  
-	&emsp;Parameter Mapping  
-	&emsp;prcr -> primary_charging_relay  
-	&emsp;prdr -> primary_discharge_relay  
-	&emsp;prpp -> primary_positive_pump  
-	&emsp;prnp -> primary_negative_pump  
-	&emsp;bv -> balancing_valve  
-	&emsp;pv -> positive_valve  
-	&emsp;nv -> negative_valve  
-	&emsp;soc -> state_of_charge  
-	&emsp;bvolt -> bcu_voltage  
-	&emsp;bcurr -> bcu_current  
-	&emsp;bpow -> bcu_power  
-	&emsp;bsoc -> bcu_state_of_charge  
-	&emsp;ss -> smoke_sensor  
-	&emsp;bocv -> bcu_ocv  
-	&emsp;bptt -> bcu_positive_tank_temp  
-	&emsp;bntt -> bcu_negative_tank_temp  
-	&emsp;pthlf -> positive_tank_high_level_float  
-	&emsp;nthlf -> negative_tank_high_level_float  
-	&emsp;ptllf -> positive_tank_low_level_float  
-	&emsp;ntllf -> negative_tank_low_level_float  
-	&emsp;prvolt -> primary_stack_voltage  
-	&emsp;prcurr -> primary_stack_current  
-	&emsp;prspps -> primary_stack_positive_pressure_sensor  
-	&emsp;prsnps -> primary_stack_negative_pressure_sensor  
-	&emsp;pspd -> positive_stack_pressure_delta  
-	&emsp;temp -> sensor_temp  
-	&emsp;hum -> humiditiy  
-	&emsp;pcvolt -> pcs1_voltage  
-	&emsp;pccurr -> pcs1_current  
-	&emsp;pcrpow -> pcs1_reactive_power  
-	&emsp;pclpow -> pcs1_load_power  
-	&emsp;pcacpow -> pcs1_ac_supply_power  
+&emsp;Ensure MADS platform is setup and mapping is correct  
+	&emsp;&emsp;Parameter Mapping  
+	&emsp;&emsp;prcr -> primary_charging_relay  
+	&emsp;&emsp;prdr -> primary_discharge_relay  
+	&emsp;&emsp;prpp -> primary_positive_pump  
+	&emsp;&emsp;prnp -> primary_negative_pump  
+	&emsp;&emsp;bv -> balancing_valve  
+	&emsp;&emsp;pv -> positive_valve  
+	&emsp;&emsp;nv -> negative_valve  
+	&emsp;&emsp;soc -> state_of_charge  
+	&emsp;&emsp;bvolt -> bcu_voltage  
+	&emsp;&emsp;bcurr -> bcu_current  
+	&emsp;&emsp;bpow -> bcu_power  
+	&emsp;&emsp;bsoc -> bcu_state_of_charge  
+	&emsp;&emsp;ss -> smoke_sensor  
+	&emsp;&emsp;bocv -> bcu_ocv  
+	&emsp;&emsp;bptt -> bcu_positive_tank_temp  
+	&emsp;&emsp;bntt -> bcu_negative_tank_temp  
+	&emsp;&emsp;pthlf -> positive_tank_high_level_float  
+	&emsp;&emsp;nthlf -> negative_tank_high_level_float  
+	&emsp;&emsp;ptllf -> positive_tank_low_level_float  
+	&emsp;&emsp;ntllf -> negative_tank_low_level_float  
+	&emsp;&emsp;prvolt -> primary_stack_voltage  
+	&emsp;&emsp;prcurr -> primary_stack_current  
+	&emsp;&emsp;prspps -> primary_stack_positive_pressure_sensor  
+	&emsp;&emsp;prsnps -> primary_stack_negative_pressure_sensor  
+	&emsp;&emsp;pspd -> positive_stack_pressure_delta  
+	&emsp;&emsp;temp -> sensor_temp  
+	&emsp;&emsp;hum -> humiditiy  
+	&emsp;&emsp;pcvolt -> pcs1_voltage  
+	&emsp;&emsp;pccurr -> pcs1_current  
+	&emsp;&emsp;pcrpow -> pcs1_reactive_power  
+	&emsp;&emsp;pclpow -> pcs1_load_power  
+	&emsp;&emsp;pcacpow -> pcs1_ac_supply_power  
 
-6)  Update system time
+**7)  Update system time**
 ```
 sudo apt-get install ntp
 ```
@@ -202,17 +202,17 @@ Check for the status
 sudo service ntp status
 ```
 
-8)  Restart remote raspberry pi machine to apply changes and execute the code (verify the code is executing after boot-up)  
+**8)  Restart remote raspberry pi machine to apply changes and execute the code (verify the code is executing after boot-up)**  
 
-9)  Common Errors  
-a) std::invalid argument
+**9)  Common Errors**  
+&emsp;**a) std::invalid argument**
 - There is 3 lines of code within battery_main.cpp that reference to a static URL. Those url could be invalid.
 ```
 std::ifstream i("/home/pi/Desktop/modbustcplogger/config.json");
 const char * db_data = "/home/pi/Desktop/modbustcplogger/db_sensordata.db";
 const char * db_statusdata = "/home/pi/Desktop/modbustcplogger/db_statusdata.db";
 ```
-&emsp;b) <modbus.h> not found.
+&emsp;**b) <modbus.h> not found.**
 - Open up ```Makefile``` and modify the following line.
 ```
 INC = -I/usr/include/modbus 
