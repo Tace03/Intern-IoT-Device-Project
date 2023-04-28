@@ -205,7 +205,7 @@ sudo service ntp status
 **8)  Restart remote raspberry pi machine to apply changes and execute the code (verify the code is executing after boot-up)**  
 
 **9)  Common Errors**  
-**a) std::invalid argument**
+&emsp;**a) std::invalid argument**
 - There is 3 lines of code within battery_main.cpp that reference to a static URL. Those url could be invalid.
 ```
 std::ifstream i("/home/pi/Desktop/modbustcplogger/config.json");
