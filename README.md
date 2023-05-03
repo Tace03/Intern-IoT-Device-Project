@@ -67,7 +67,7 @@ sudo chmod +x /etc/rc.local
 ```
 The startup script in the directory copied from the above file content.
 ```
-sudo nano /home/pi/Desktop/modbusctplogger/start.sh
+sudo nano /home/pi/Desktop/modbustcplogger/start.sh
 ```
 Copy and paste the following content into the file.
 ```
@@ -76,7 +76,7 @@ sudo tmux set-option -t start:0 remain-on-exit
 ```
 Modify the file to be executable
 ```
-sudo chmod +x /home/pi/Desktop/modbusctplogger/start.sh
+sudo chmod +x /home/pi/Desktop/modbustcplogger/start.sh
 ```
 
 **2) 	Create directory and prepare your linux machine to compile and execute the program.**  
