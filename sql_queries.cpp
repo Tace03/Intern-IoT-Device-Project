@@ -671,7 +671,7 @@ int getRowCount(sqlite3 *db)
 //////////////////////////////////////////////////////////////////////////////////
 // Section 14
 // Create a callback function  
-int sensorDataCallback(void *sensorDataPtr, int argc, char **argv, char **azColName)
+int sensorDataCallback(void *sensorDataPtr, int argc, char *argv[], char **azColName)
 {
     sensor_data* fetched_sensor_data = (sensor_data*) sensorDataPtr;
     int i = 0;
