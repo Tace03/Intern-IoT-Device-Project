@@ -646,124 +646,123 @@ int sensorDataCallback(void *sensorDataPtr, int argc, char **argv, char **azColN
 
     for(i = 0; i < argc; i++) {
 
+        if(strcmp(azColName[i],"uptime") == 0) //strings are same
+            fetched_sensor_data->uptime = atol(argv[i]);
+        else if(strcmp(azColName[i],"timeStamp") == 0) 
+            fetched_sensor_data->timestamp = atol(argv[i]);
+        else if(strcmp(azColName[i],"primary_charging_relay") == 0) 
+            fetched_sensor_data->battery.primary_charging_relay = atoi(argv[i]);
+        else if(strcmp(azColName[i],"primary_discharge_relay") == 0) 
+            fetched_sensor_data->battery.primary_discharge_relay = atoi(argv[i]);
+        else if(strcmp(azColName[i],"primary_positive_pump") == 0) 
+            fetched_sensor_data->battery.primary_positive_pump = atoi(argv[i]);
+        else if(strcmp(azColName[i],"primary_negative_pump") == 0) 
+            fetched_sensor_data->battery.primary_negative_pump = atoi(argv[i]);
 
-    if(strcmp(azColName[i],"uptime") == 0) //strings are same
-        fetched_sensor_data->uptime = atol(argv[i]);
-    else if(strcmp(azColName[i],"timeStamp") == 0) 
-        fetched_sensor_data->timestamp = atol(argv[i]);
-    else if(strcmp(azColName[i],"primary_charging_relay") == 0) 
-        fetched_sensor_data->battery.primary_charging_relay = atoi(argv[i]);
-    else if(strcmp(azColName[i],"primary_discharge_relay") == 0) 
-        fetched_sensor_data->battery.primary_discharge_relay = atoi(argv[i]);
-    else if(strcmp(azColName[i],"primary_positive_pump") == 0) 
-        fetched_sensor_data->battery.primary_positive_pump = atoi(argv[i]);
-    else if(strcmp(azColName[i],"primary_negative_pump") == 0) 
-        fetched_sensor_data->battery.primary_negative_pump = atoi(argv[i]);
+        else if(strcmp(azColName[i],"system_mode") == 0) // Added on 11 Aug 21
+        {
+            fetched_sensor_data->battery.system_mode = atoi(argv[i]);
+            printf("system_mode %lf\r\n",fetched_sensor_data->battery.system_mode);
+        }
+        else if(strcmp(azColName[i],"system_alarm_status") == 0) // Added on 11 Aug 21
+            fetched_sensor_data->battery.system_alarm_status = atoi(argv[i]);
 
-    else if(strcmp(azColName[i],"system_mode") == 0) // Added on 11 Aug 21
-    {
-        fetched_sensor_data->battery.system_mode = atoi(argv[i]);
-        printf("system_mode %lf\r\n",fetched_sensor_data->battery.system_mode);
-    }
-    else if(strcmp(azColName[i],"system_alarm_status") == 0) // Added on 11 Aug 21
-        fetched_sensor_data->battery.system_alarm_status = atoi(argv[i]);
+        else if(strcmp(azColName[i],"balancing_valve") == 0) 
+            fetched_sensor_data->battery.balancing_valve = atoi(argv[i]);
+        else if(strcmp(azColName[i],"positive_valve") == 0) 
+            fetched_sensor_data->battery.positive_valve = atoi(argv[i]);
+        else if(strcmp(azColName[i],"negative_valve") == 0) 
+            fetched_sensor_data->battery.negative_valve = atoi(argv[i]);
 
-    else if(strcmp(azColName[i],"balancing_valve") == 0) 
-        fetched_sensor_data->battery.balancing_valve = atoi(argv[i]);
-    else if(strcmp(azColName[i],"positive_valve") == 0) 
-        fetched_sensor_data->battery.positive_valve = atoi(argv[i]);
-    else if(strcmp(azColName[i],"negative_valve") == 0) 
-        fetched_sensor_data->battery.negative_valve = atoi(argv[i]);
+        else if(strcmp(azColName[i],"state_of_charge") == 0) 
+            fetched_sensor_data->battery.state_of_charge = atof(argv[i]);
 
-    else if(strcmp(azColName[i],"state_of_charge") == 0) 
-        fetched_sensor_data->battery.state_of_charge = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_mode_status") == 0)  // Added on 11 Aug 21
+            fetched_sensor_data->battery.bcu_mode_status = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_hydrogen_sensor") == 0)  // Added on 11 Aug 21
+            fetched_sensor_data->battery.bcu_hydrogen_sensor = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_leakage_sensor") == 0)  // Added on 11 Aug 21
+            fetched_sensor_data->battery.bcu_leakage_sensor = atof(argv[i]);    
 
-    else if(strcmp(azColName[i],"bcu_mode_status") == 0)  // Added on 11 Aug 21
-        fetched_sensor_data->battery.bcu_mode_status = atof(argv[i]);
-    else if(strcmp(azColName[i],"bcu_hydrogen_sensor") == 0)  // Added on 11 Aug 21
-        fetched_sensor_data->battery.bcu_hydrogen_sensor = atof(argv[i]);
-    else if(strcmp(azColName[i],"bcu_leakage_sensor") == 0)  // Added on 11 Aug 21
-        fetched_sensor_data->battery.bcu_leakage_sensor = atof(argv[i]);    
+        else if(strcmp(azColName[i],"bcu_voltage") == 0) 
+            fetched_sensor_data->battery.bcu_voltage = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_current") == 0) 
+            fetched_sensor_data->battery.bcu_current = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_power") == 0) 
+            fetched_sensor_data->battery.bcu_power = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_state_of_charge") == 0) 
+            fetched_sensor_data->battery.bcu_state_of_charge = atof(argv[i]);
+        else if(strcmp(azColName[i],"smoke_sensor") == 0) 
+            fetched_sensor_data->battery.smoke_sensor = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_ocv") == 0) 
+            fetched_sensor_data->battery.bcu_ocv = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_positive_tank_temp") == 0) 
+            fetched_sensor_data->battery.bcu_positive_tank_temp = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_negative_tank_temp") == 0) 
+            fetched_sensor_data->battery.bcu_negative_tank_temp = atof(argv[i]);
+        else if(strcmp(azColName[i],"positive_tank_high_level_float") == 0) 
+            fetched_sensor_data->battery.positive_tank_high_level_float = atoi(argv[i]);
+        else if(strcmp(azColName[i],"negative_tank_high_level_float") == 0) 
+            fetched_sensor_data->battery.negative_tank_high_level_float = atoi(argv[i]);
+        else if(strcmp(azColName[i],"positive_tank_low_level_float") == 0) 
+            fetched_sensor_data->battery.positive_tank_low_level_float = atoi(argv[i]);
+        else if(strcmp(azColName[i],"negative_tank_low_level_float") == 0) 
+            fetched_sensor_data->battery.negative_tank_low_level_float = atoi(argv[i]);
+        else if(strcmp(azColName[i],"primary_stack_voltage") == 0) 
+            fetched_sensor_data->battery.primary_stack_voltage = atof(argv[i]);
+        else if(strcmp(azColName[i],"primary_stack_current") == 0) 
+            fetched_sensor_data->battery.primary_stack_current = atof(argv[i]);
+        else if(strcmp(azColName[i],"primary_stack_positive_pressure_sensor") == 0) 
+            fetched_sensor_data->battery.primary_stack_positive_pressure_sensor = atof(argv[i]);
+        else if(strcmp(azColName[i],"primary_stack_negative_pressure_sensor") == 0) 
+            fetched_sensor_data->battery.primary_stack_negative_pressure_sensor = atof(argv[i]);
 
-    else if(strcmp(azColName[i],"bcu_voltage") == 0) 
-        fetched_sensor_data->battery.bcu_voltage = atof(argv[i]);
-    else if(strcmp(azColName[i],"bcu_current") == 0) 
-        fetched_sensor_data->battery.bcu_current = atof(argv[i]);
-    else if(strcmp(azColName[i],"bcu_power") == 0) 
-        fetched_sensor_data->battery.bcu_power = atof(argv[i]);
-    else if(strcmp(azColName[i],"bcu_state_of_charge") == 0) 
-        fetched_sensor_data->battery.bcu_state_of_charge = atof(argv[i]);
-    else if(strcmp(azColName[i],"smoke_sensor") == 0) 
-        fetched_sensor_data->battery.smoke_sensor = atof(argv[i]);
-    else if(strcmp(azColName[i],"bcu_ocv") == 0) 
-        fetched_sensor_data->battery.bcu_ocv = atof(argv[i]);
-    else if(strcmp(azColName[i],"bcu_positive_tank_temp") == 0) 
-        fetched_sensor_data->battery.bcu_positive_tank_temp = atof(argv[i]);
-    else if(strcmp(azColName[i],"bcu_negative_tank_temp") == 0) 
-        fetched_sensor_data->battery.bcu_negative_tank_temp = atof(argv[i]);
-    else if(strcmp(azColName[i],"positive_tank_high_level_float") == 0) 
-        fetched_sensor_data->battery.positive_tank_high_level_float = atoi(argv[i]);
-    else if(strcmp(azColName[i],"negative_tank_high_level_float") == 0) 
-        fetched_sensor_data->battery.negative_tank_high_level_float = atoi(argv[i]);
-    else if(strcmp(azColName[i],"positive_tank_low_level_float") == 0) 
-        fetched_sensor_data->battery.positive_tank_low_level_float = atoi(argv[i]);
-    else if(strcmp(azColName[i],"negative_tank_low_level_float") == 0) 
-        fetched_sensor_data->battery.negative_tank_low_level_float = atoi(argv[i]);
-    else if(strcmp(azColName[i],"primary_stack_voltage") == 0) 
-        fetched_sensor_data->battery.primary_stack_voltage = atof(argv[i]);
-    else if(strcmp(azColName[i],"primary_stack_current") == 0) 
-        fetched_sensor_data->battery.primary_stack_current = atof(argv[i]);
-    else if(strcmp(azColName[i],"primary_stack_positive_pressure_sensor") == 0) 
-        fetched_sensor_data->battery.primary_stack_positive_pressure_sensor = atof(argv[i]);
-    else if(strcmp(azColName[i],"primary_stack_negative_pressure_sensor") == 0) 
-        fetched_sensor_data->battery.primary_stack_negative_pressure_sensor = atof(argv[i]);
+        else if(strcmp(azColName[i],"positive_stack_pressure_delta") == 0)   // Modified on 11 Aug 21
+            fetched_sensor_data->battery.positive_stack_pressure_delta = atof(argv[i]);
+        else if(strcmp(azColName[i],"primary_stack_pressure_delta") == 0)   // Added on 11 Aug 21
+            fetched_sensor_data->battery.b1_primary_stack_pressure_delta = atof(argv[i]);
 
-    else if(strcmp(azColName[i],"positive_stack_pressure_delta") == 0)   // Modified on 11 Aug 21
-        fetched_sensor_data->battery.positive_stack_pressure_delta = atof(argv[i]);
-    else if(strcmp(azColName[i],"primary_stack_pressure_delta") == 0)   // Added on 11 Aug 21
-        fetched_sensor_data->battery.b1_primary_stack_pressure_delta = atof(argv[i]);
+        else if(strcmp(azColName[i],"sensor_temp") == 0) 
+            fetched_sensor_data->battery.sensor_temp = atof(argv[i]);
+        else if(strcmp(azColName[i],"humidity") == 0) 
+            fetched_sensor_data->battery.humidity = atof(argv[i]);
 
-    else if(strcmp(azColName[i],"sensor_temp") == 0) 
-        fetched_sensor_data->battery.sensor_temp = atof(argv[i]);
-    else if(strcmp(azColName[i],"humidity") == 0) 
-        fetched_sensor_data->battery.humidity = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_dc_volts") == 0)    // Added on 11 Aug 21
+            fetched_sensor_data->battery.pcs1_dc_volts = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_dc_batt_current") == 0)    // Added on 11 Aug 21
+            fetched_sensor_data->battery.pcs1_dc_batt_current = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_dc_inverter_power") == 0)    // Added on 11 Aug 21
+            fetched_sensor_data->battery.pcs1_dc_inverter_power = atof(argv[i]);
 
-    else if(strcmp(azColName[i],"pcs1_dc_volts") == 0)    // Added on 11 Aug 21
-        fetched_sensor_data->battery.pcs1_dc_volts = atof(argv[i]);
-    else if(strcmp(azColName[i],"pcs1_dc_batt_current") == 0)    // Added on 11 Aug 21
-        fetched_sensor_data->battery.pcs1_dc_batt_current = atof(argv[i]);
-    else if(strcmp(azColName[i],"pcs1_dc_inverter_power") == 0)    // Added on 11 Aug 21
-        fetched_sensor_data->battery.pcs1_dc_inverter_power = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_voltage") == 0) 
+            fetched_sensor_data->battery.pcs1_voltage = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_current") == 0) 
+            fetched_sensor_data->battery.pcs1_current = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_reactive_power") == 0) 
+            fetched_sensor_data->battery.pcs1_reactive_power = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_load_power") == 0) 
+            fetched_sensor_data->battery.pcs1_load_power = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_ac_supply_power") == 0) 
+            fetched_sensor_data->battery.pcs1_ac_supply_power = atof(argv[i]);
 
-    else if(strcmp(azColName[i],"pcs1_voltage") == 0) 
-        fetched_sensor_data->battery.pcs1_voltage = atof(argv[i]);
-    else if(strcmp(azColName[i],"pcs1_current") == 0) 
-        fetched_sensor_data->battery.pcs1_current = atof(argv[i]);
-    else if(strcmp(azColName[i],"pcs1_reactive_power") == 0) 
-        fetched_sensor_data->battery.pcs1_reactive_power = atof(argv[i]);
-    else if(strcmp(azColName[i],"pcs1_load_power") == 0) 
-        fetched_sensor_data->battery.pcs1_load_power = atof(argv[i]);
-    else if(strcmp(azColName[i],"pcs1_ac_supply_power") == 0) 
-        fetched_sensor_data->battery.pcs1_ac_supply_power = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_ac_out_status") == 0)    // Added on 11 Aug 21 
+            fetched_sensor_data->battery.pcs1_ac_out_status = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_fault_status") == 0)     // Added on 11 Aug 21
+            fetched_sensor_data->battery.pcs1_fault_status = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_fan_speed") == 0)     // Added on 11 Aug 21
+            fetched_sensor_data->battery.pcs1_fan_speed = atof(argv[i]);
 
-    else if(strcmp(azColName[i],"pcs1_ac_out_status") == 0)    // Added on 11 Aug 21 
-        fetched_sensor_data->battery.pcs1_ac_out_status = atof(argv[i]);
-    else if(strcmp(azColName[i],"pcs1_fault_status") == 0)     // Added on 11 Aug 21
-        fetched_sensor_data->battery.pcs1_fault_status = atof(argv[i]);
-    else if(strcmp(azColName[i],"pcs1_fan_speed") == 0)     // Added on 11 Aug 21
-        fetched_sensor_data->battery.pcs1_fan_speed = atof(argv[i]);
-
-    else if(strcmp(azColName[i],"system0PVEnable") == 0)                            // Added 06-12-2021
-        fetched_sensor_data->battery.system0PVEnable = atof(argv[i]);               // Added 06-12-2021
-    else if(strcmp(azColName[i],"system0PVChargePower") == 0)                       // Added 06-12-2021
-        fetched_sensor_data->battery.system0PVChargePower = atof(argv[i]);          // Added 06-12-2021
-    else if(strcmp(azColName[i],"system0PVTotalPower") == 0)                        // Added 06-12-2021
-        fetched_sensor_data->battery.system0PVTotalPower = atof(argv[i]);           // Added 06-12-2021
-    else if(strcmp(azColName[i],"pcs1InvFreq") == 0)                                // Added 06-12-2021
-        fetched_sensor_data->battery.pcs1InvFreq = atof(argv[i]);                   // Added 06-12-2021
-    else if(strcmp(azColName[i],"pcs1InternalTemperature") == 0)                    // Added 06-12-2021
+        else if(strcmp(azColName[i],"system0PVEnable") == 0)                            // Added 06-12-2021
+            fetched_sensor_data->battery.system0PVEnable = atof(argv[i]);               // Added 06-12-2021
+        else if(strcmp(azColName[i],"system0PVChargePower") == 0)                       // Added 06-12-2021
+            fetched_sensor_data->battery.system0PVChargePower = atof(argv[i]);          // Added 06-12-2021
+        else if(strcmp(azColName[i],"system0PVTotalPower") == 0)                        // Added 06-12-2021
+            fetched_sensor_data->battery.system0PVTotalPower = atof(argv[i]);           // Added 06-12-2021
+        else if(strcmp(azColName[i],"pcs1InvFreq") == 0)                                // Added 06-12-2021
+            fetched_sensor_data->battery.pcs1InvFreq = atof(argv[i]);                   // Added 06-12-2021
+        else if(strcmp(azColName[i],"pcs1InternalTemperature") == 0)                    // Added 06-12-2021
         fetched_sensor_data->battery.pcs1InternalTemperature = atof(argv[i]);       // Added 06-12-2021
-
+    }
     if(i==argc)
         fetched_sensor_data->isValid = true;
     // Insert a newline
