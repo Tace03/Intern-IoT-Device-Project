@@ -202,9 +202,26 @@ Check for the status
 sudo service ntp status
 ```
 
-**8)  Restart remote raspberry pi machine to apply changes and execute the code (verify the code is executing after boot-up)**  
+**8) Restart remote raspberry pi machine to apply changes and execute the code (verify the code is executing after boot-up)**  
 
-**9)  Common Errors**  
+**9) Fix static IP**  
+The directory that store the file to configure a static IP can be found in ```/etc/network/interfaces```.  
+Configure a network port using the following lines:
+```
+# interfaces(5) file used by ifup(8) and ifdown(8)
+# Include files from /etc/network/interfaces.d:
+source-directory /etc/network/interfaces.d
+
+auto eth0
+iface eth0 inet static
+address 192.168.0.155
+netmask 255.255.255.0
+broadcast 192.168.0.1
+gateway 192.168.0.254
+```
+```eth0``` is the name of your ethernet port. If you do not have internet connection after setting this up, please ensure that your **gateway** and **broadcast** ip are correct. These IP is to be configured according to your modem or router.
+
+**10)  Common Errors**  
 &emsp;**a) std::invalid argument**
 - There is 3 lines of code within battery_main.cpp that reference to a static URL. Those url could be invalid.
 ```

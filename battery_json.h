@@ -31,10 +31,12 @@ typedef struct _system_config
 {
     std::string modbus_BMS_ip;
     int modbus_BMS_slave_id;
-    std::string modbus_ComAP_ip;
-    int modbus_ComAP_slave_id;
-    std::string modbus_ComAP2_ip;
-    int modbus_ComAP2_slave_id;
+    std::string modbus_BESS_ip;
+    int modbus_BESS_slave_id;
+    std::string modbus_Lit_ip;
+    int modbus_Lit_slave_id;
+    std::string modbus_MG_ip;
+    int modbus_MG_slave_id;
     int noOfModbusAttemptsAllowed;
     int modbus_data_read_interval;
     std::string mads_auth_token;
@@ -103,11 +105,14 @@ typedef struct __attribute__((__packed__)) _battery_data
     float pcs1InvFreq;
     float pcs1InternalTemperature;
 
-    float bess1_voltage_gain;             // Added by SeowSK
-    float bess1_voltage_int;              // Added by SeowSK
+    float bess_voltage_gain;             // Added by SeowSK
+    float bess_voltage_int;              // Added by SeowSK
 
-    float bess2_voltage_gain;             // Added by SeowSK
-    float bess2_voltage_int;              // Added by SeowSK
+    float lit_voltage_gain;             // Added by SeowSK
+    float lit_voltage_int;              // Added by SeowSK
+
+    float mg_voltage_gain;             // Added by SeowSK
+    float mg_voltage_int;              // Added by SeowSK
 } battery_data;
 // End of Section 11
 //////////////////////////////////////////////////////////////////////////////////

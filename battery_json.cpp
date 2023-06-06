@@ -97,11 +97,15 @@ void encode_sensor_data_to_json(json& out_data, const sensor_data& inp_data, sys
 	out_data["assets_params"]["Freq"] = (float)inp_data.battery.pcs1InvFreq;
 	out_data["assets_params"]["InvTemp"] = (float)inp_data.battery.pcs1InternalTemperature;
 
-	out_data["comap_params"]["voltg"] = (float)inp_data.battery.bess1_voltage_gain;					// Added by SeowSK
-	out_data["comap_params"]["voltint"] = (float)inp_data.battery.bess1_voltage_int;					// Added by SeowSK
+	out_data["bess_params"]["voltg"] = (float)inp_data.battery.bess_voltage_gain;					// Added by SeowSK
+	out_data["bess_params"]["voltint"] = (float)inp_data.battery.bess_voltage_int;					// Added by SeowSK
 
-	out_data["comap2_params"]["voltg"] = (float)inp_data.battery.bess2_voltage_gain;					// Added by SeowSK
-	out_data["comap2_params"]["voltint"] = (float)inp_data.battery.bess2_voltage_int;					// Added by SeowSK
+	out_data["lit_params"]["voltg"] = (float)inp_data.battery.lit_voltage_gain;					// Added by SeowSK
+	out_data["lit_params"]["voltint"] = (float)inp_data.battery.lit_voltage_int;					// Added by SeowSK
+
+	out_data["mg_params"]["voltg"] = (float)inp_data.battery.mg_voltage_gain;					// Added by SeowSK
+	out_data["mg_params"]["voltint"] = (float)inp_data.battery.mg_voltage_int;					// Added by SeowSK
+
 }
 // End of Section 10
 //////////////////////////////////////////////////////////////////////////////////

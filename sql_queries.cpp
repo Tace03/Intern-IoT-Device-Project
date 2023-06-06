@@ -45,61 +45,7 @@ error_data logValues(sqlite3 *db, sqlite3_stmt* stmt, sensor_data* current_senso
     error.rc = -1;
     unsigned char loc_count = 1;
     //modified on 11 Aug 21
-/*
-    sql = "INSERT INTO dataLog(uptime,timeStamp,primary_charging_relay,primary_discharge_relay,primary_positive_pump,primary_negative_pump,balancing_valve,positive_valve,+
-        "negative_valve," +
-        "state_of_charge," +
-        "bcu_voltage," +
-        "bcu_current," +
-        "bcu_power," +
-        "bcu_state_of_charge," +
-        "smoke_sensor," +
-        "bcu_ocv," +
-        "bcu_positive_tank_temp," +
-        "bcu_negative_tank_temp," +
-        "positive_tank_high_level_float," +
-        "negative_tank_high_level_float," +
-        "positive_tank_low_level_float," +
-        "negative_tank_low_level_float," +
-        "primary_stack_voltage," +
-        "primary_stack_current," +
-        "primary_stack_positive_pressure_sensor," +
-        "primary_stack_negative_pressure_sensor," +
-        "primary_stack_pressure_delta," +
-        "sensor_temp," +
-        "humidity," +
-        "pcs1_voltage," +
-        "pcs1_current," +
-        "pcs1_reactive_power," +
-        "pcs1_load_power," +
-        "pcs1_ac_supply_power," +
-        "sentToServer," +
-        "markToSent," +
-        "system_mode," +
-        "system_alarm_status," +
-        "bcu_mode_status," +
-        "bcu_hydrogen_sensor," +
-        "bcu_leakage_sensor," +
-        "b1_primary_stack_pressure_delta," +
-        "pcs1_dc_volts," +
-        "pcs1_dc_batt_current," +
-        "pcs1_dc_inverter_power," +
-        "pcs1_ac_out_status," +
-        "pcs1_fault_status," +
-        "pcs1_fan_speed," +
-        "system0PVEnable," +
-        "system0PVChargePower," +
-        "system0PVTotalPower," +
-        "pcs1InvFreq," +
-        "pcs1InternalTemperature," +
-        "bess1_voltage_gain," +
-        "bess1_voltage_int," +
-        "bess2_voltage_gain," +
-        "bess2_voltage_int)" + 
-        "VALUES" + 
-        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-*/
-    sql = "INSERT INTO dataLog(uptime,timeStamp,primary_charging_relay,primary_discharge_relay,primary_positive_pump,primary_negative_pump,balancing_valve,positive_valve,negative_valve,state_of_charge,bcu_voltage,bcu_current,bcu_power,bcu_state_of_charge,smoke_sensor,bcu_ocv,bcu_positive_tank_temp,bcu_negative_tank_temp,positive_tank_high_level_float,negative_tank_high_level_float,positive_tank_low_level_float,negative_tank_low_level_float,primary_stack_voltage,primary_stack_current,primary_stack_positive_pressure_sensor,primary_stack_negative_pressure_sensor,primary_stack_pressure_delta,sensor_temp,humidity,pcs1_voltage,pcs1_current,pcs1_reactive_power,pcs1_load_power,pcs1_ac_supply_power,sentToServer,markToSent,system_mode,system_alarm_status,bcu_mode_status,bcu_hydrogen_sensor,bcu_leakage_sensor,b1_primary_stack_pressure_delta,pcs1_dc_volts,pcs1_dc_batt_current,pcs1_dc_inverter_power,pcs1_ac_out_status,pcs1_fault_status,pcs1_fan_speed,system0PVEnable,system0PVChargePower,system0PVTotalPower,pcs1InvFreq,pcs1InternalTemperature,bess1_voltage_gain,bess1_voltage_int,bess2_voltage_gain,bess2_voltage_int) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+    sql = "INSERT INTO dataLog(uptime,timeStamp,sentToServer,markToSent,primary_charging_relay,primary_discharge_relay,primary_positive_pump,primary_negative_pump,system_mode,system_alarm_status,balancing_valve,positive_valve,negative_valve,state_of_charge,bcu_voltage,bcu_current,bcu_power,bcu_state_of_charge,bcu_mode_status,bcu_hydrogen_sensor,bcu_leakage_sensor,smoke_sensor,bcu_ocv,bcu_positive_tank_temp,bcu_negative_tank_temp,positive_tank_high_level_float,negative_tank_high_level_float,positive_tank_low_level_float,negative_tank_low_level_float,primary_stack_voltage,primary_stack_current,primary_stack_positive_pressure_sensor,primary_stack_negative_pressure_sensor,positive_stack_pressure_delta,b1_primary_stack_pressure_delta,sensor_temp,humidity,pcs1_dc_volts,pcs1_dc_batt_current,pcs1_dc_inverter_power,pcs1_voltage,pcs1_current,pcs1_reactive_power,pcs1_load_power,pcs1_ac_supply_power,pcs1_ac_out_status,pcs1_fault_status,pcs1_fan_speed,system0PVEnable,system0PVChargePower,system0PVTotalPower,pcs1InvFreq,pcs1InternalTemperature,bess_voltage_gain,bess_voltage_int,lit_voltage_gain,lit_voltage_int,mg_voltage_gain,mg_voltage_int) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
     rc = sqlite3_prepare_v2(db, sql, -1,  &stmt,  0);
 // End of Section 12
 //////////////////////////////////////////////////////////////////////////////////
@@ -113,516 +59,536 @@ error_data logValues(sqlite3 *db, sqlite3_stmt* stmt, sensor_data* current_senso
 //////////////////////////////////////////////////////////////////////////////////
 // Section 13
     rc = sqlite3_bind_double(stmt, loc_count, current_sensor_data->uptime);
-    if ( rc != SQLITE_OK) 
-    { 
+    if (rc != SQLITE_OK)
+    {
         error.lineNo = __LINE__;
         error.rc = rc;
         return error;
     }
     loc_count++;
 
-    rc = sqlite3_bind_int(stmt,loc_count, current_sensor_data->timestamp);
-    if ( rc != SQLITE_OK) 
-    { 
+    rc = sqlite3_bind_int(stmt, loc_count, current_sensor_data->timestamp);
+    if (rc != SQLITE_OK)
+    {
         error.lineNo = __LINE__;
         error.rc = rc;
         return error;
     }
     loc_count++;
-    
-    rc = sqlite_bind_int_status(stmt, loc_count, current_sensor_data->battery.primary_charging_relay); 
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;	
-    
-    rc = sqlite_bind_int_status(stmt, loc_count, current_sensor_data->battery.primary_discharge_relay);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_int_status(stmt, loc_count, current_sensor_data->battery.primary_positive_pump);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_int_status(stmt, loc_count, current_sensor_data->battery.primary_negative_pump);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_int_status(stmt, loc_count, current_sensor_data->battery.balancing_valve);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_int_status(stmt, loc_count, current_sensor_data->battery.positive_valve);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_int_status(stmt, loc_count, current_sensor_data->battery.negative_valve);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.state_of_charge);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_voltage);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_current);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_power);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_state_of_charge);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.smoke_sensor);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_ocv);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_positive_tank_temp);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_negative_tank_temp);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_int_status(stmt, loc_count, current_sensor_data->battery.positive_tank_high_level_float);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_int_status(stmt, loc_count, current_sensor_data->battery.negative_tank_high_level_float);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_int_status(stmt, loc_count, current_sensor_data->battery.positive_tank_low_level_float);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_int_status(stmt, loc_count, current_sensor_data->battery.negative_tank_low_level_float);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.primary_stack_voltage);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.primary_stack_current);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.primary_stack_positive_pressure_sensor);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.primary_stack_negative_pressure_sensor);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.positive_stack_pressure_delta);// Modified on 11 Aug 21
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.sensor_temp);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.humidity);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_voltage);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_current);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_reactive_power);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_load_power);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_ac_supply_power);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
+
     rc = sqlite3_bind_int(stmt, loc_count, 0);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite3_bind_int(stmt, loc_count, markToSent);
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_int_status(stmt, loc_count, current_sensor_data->battery.system_mode); // Added on 11 Aug 21
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_int_status(stmt, loc_count, current_sensor_data->battery.system_alarm_status); // Added on 11 Aug 21
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_mode_status);// Added on 11 Aug 21
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_hydrogen_sensor);// Added on 11 Aug 21
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_leakage_sensor);// Added on 11 Aug 21
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.b1_primary_stack_pressure_delta); // Added on 11 Aug 21
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_dc_volts); // Added on 11 Aug 21
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_dc_batt_current); // Added on 11 Aug 21
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_dc_inverter_power); // Added on 11 Aug 21
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_ac_out_status);// Added on 11 Aug 21
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_fault_status);// Added on 11 Aug 21
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_fan_speed);// Added on 11 Aug 21
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_int_status(stmt, loc_count, current_sensor_data->battery.system0PVEnable);// Added 06-12-2021
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.system0PVChargePower);// Added 06-12-2021
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.system0PVTotalPower);// Added 06-12-2021
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1InvFreq);// Added 06-12-2021
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1InternalTemperature);// Added 06-12-2021
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bess1_voltage_gain);// Added 06-12-2021
-    if ( rc != SQLITE_OK) 
-    { 
-        error.lineNo = __LINE__;
-        error.rc = rc;
-        return error;
-    }
-    loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bess1_voltage_int);// Added 06-12-2021
-    if ( rc != SQLITE_OK) 
-    { 
+    if (rc != SQLITE_OK)
+    {
         error.lineNo = __LINE__;
         error.rc = rc;
         return error;
     }
     loc_count++;
 
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bess2_voltage_gain);// Added 06-12-2021
-    if ( rc != SQLITE_OK) 
-    { 
+    rc = sqlite3_bind_int(stmt, loc_count, markToSent);
+    if (rc != SQLITE_OK)
+    {
         error.lineNo = __LINE__;
         error.rc = rc;
         return error;
     }
     loc_count++;
-    
-    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bess2_voltage_int);// Added 06-12-2021
-    if ( rc != SQLITE_OK) 
-    { 
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.primary_charging_relay);
+    if (rc != SQLITE_OK)
+    {
         error.lineNo = __LINE__;
         error.rc = rc;
         return error;
     }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.primary_discharge_relay);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.primary_positive_pump);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.primary_negative_pump);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.system_mode);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.system_alarm_status);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.balancing_valve);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.positive_valve);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.negative_valve);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.state_of_charge);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_voltage);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_current);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_power);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_state_of_charge);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_mode_status);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_hydrogen_sensor);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_leakage_sensor);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.smoke_sensor);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_ocv);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_positive_tank_temp);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bcu_negative_tank_temp);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.positive_tank_high_level_float);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.negative_tank_high_level_float);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.positive_tank_low_level_float);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.negative_tank_low_level_float);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.primary_stack_voltage);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.primary_stack_current);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.primary_stack_positive_pressure_sensor);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.primary_stack_negative_pressure_sensor);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.positive_stack_pressure_delta);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.b1_primary_stack_pressure_delta);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.sensor_temp);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.humidity);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_dc_volts);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_dc_batt_current);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_dc_inverter_power);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_voltage);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_current);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_reactive_power);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_load_power);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_ac_supply_power);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_ac_out_status);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_fault_status);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1_fan_speed);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.system0PVEnable);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.system0PVChargePower);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.system0PVTotalPower);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1InvFreq);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.pcs1InternalTemperature);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bess_voltage_gain);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.bess_voltage_int);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.lit_voltage_gain);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.lit_voltage_int);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.mg_voltage_gain);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
+    rc = sqlite_bind_double_status(stmt, loc_count, current_sensor_data->battery.mg_voltage_int);
+    if (rc != SQLITE_OK)
+    {
+        error.lineNo = __LINE__;
+        error.rc = rc;
+        return error;
+    }
+    loc_count++;
+
 // End of Section 13
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -680,133 +646,127 @@ int sensorDataCallback(void *sensorDataPtr, int argc, char **argv, char **azColN
     // (array) azColName: holds each column returned
     // (array) argv: holds each value
 
-    for(i = 0; i < argc; i++) {
-
-
-    if(strcmp(azColName[i],"uptime") == 0) //strings are same
-        fetched_sensor_data->uptime = atol(argv[i]);
-    else if(strcmp(azColName[i],"timeStamp") == 0) 
-        fetched_sensor_data->timestamp = atol(argv[i]);
-    else if(strcmp(azColName[i],"primary_charging_relay") == 0) 
-        fetched_sensor_data->battery.primary_charging_relay = atoi(argv[i]);
-    else if(strcmp(azColName[i],"primary_discharge_relay") == 0) 
-        fetched_sensor_data->battery.primary_discharge_relay = atoi(argv[i]);
-    else if(strcmp(azColName[i],"primary_positive_pump") == 0) 
-        fetched_sensor_data->battery.primary_positive_pump = atoi(argv[i]);
-    else if(strcmp(azColName[i],"primary_negative_pump") == 0) 
-        fetched_sensor_data->battery.primary_negative_pump = atoi(argv[i]);
-
-    else if(strcmp(azColName[i],"system_mode") == 0) // Added on 11 Aug 21
+    for(i = 0; i < argc; i++) 
     {
-        fetched_sensor_data->battery.system_mode = atoi(argv[i]);
-        printf("system_mode %lf\r\n",fetched_sensor_data->battery.system_mode);
-    }
-    else if(strcmp(azColName[i],"system_alarm_status") == 0) // Added on 11 Aug 21
-        fetched_sensor_data->battery.system_alarm_status = atoi(argv[i]);
-
-    else if(strcmp(azColName[i],"balancing_valve") == 0) 
-        fetched_sensor_data->battery.balancing_valve = atoi(argv[i]);
-    else if(strcmp(azColName[i],"positive_valve") == 0) 
-        fetched_sensor_data->battery.positive_valve = atoi(argv[i]);
-    else if(strcmp(azColName[i],"negative_valve") == 0) 
-        fetched_sensor_data->battery.negative_valve = atoi(argv[i]);
-
-    else if(strcmp(azColName[i],"state_of_charge") == 0) 
-        fetched_sensor_data->battery.state_of_charge = atof(argv[i]);
-
-    else if(strcmp(azColName[i],"bcu_mode_status") == 0)  // Added on 11 Aug 21
-        fetched_sensor_data->battery.bcu_mode_status = atof(argv[i]);
-    else if(strcmp(azColName[i],"bcu_hydrogen_sensor") == 0)  // Added on 11 Aug 21
-        fetched_sensor_data->battery.bcu_hydrogen_sensor = atof(argv[i]);
-    else if(strcmp(azColName[i],"bcu_leakage_sensor") == 0)  // Added on 11 Aug 21
-        fetched_sensor_data->battery.bcu_leakage_sensor = atof(argv[i]);    
-
-    else if(strcmp(azColName[i],"bcu_voltage") == 0) 
-        fetched_sensor_data->battery.bcu_voltage = atof(argv[i]);
-    else if(strcmp(azColName[i],"bcu_current") == 0) 
-        fetched_sensor_data->battery.bcu_current = atof(argv[i]);
-    else if(strcmp(azColName[i],"bcu_power") == 0) 
-        fetched_sensor_data->battery.bcu_power = atof(argv[i]);
-    else if(strcmp(azColName[i],"bcu_state_of_charge") == 0) 
-        fetched_sensor_data->battery.bcu_state_of_charge = atof(argv[i]);
-    else if(strcmp(azColName[i],"smoke_sensor") == 0) 
-        fetched_sensor_data->battery.smoke_sensor = atof(argv[i]);
-    else if(strcmp(azColName[i],"bcu_ocv") == 0) 
-        fetched_sensor_data->battery.bcu_ocv = atof(argv[i]);
-    else if(strcmp(azColName[i],"bcu_positive_tank_temp") == 0) 
-        fetched_sensor_data->battery.bcu_positive_tank_temp = atof(argv[i]);
-    else if(strcmp(azColName[i],"bcu_negative_tank_temp") == 0) 
-        fetched_sensor_data->battery.bcu_negative_tank_temp = atof(argv[i]);
-    else if(strcmp(azColName[i],"positive_tank_high_level_float") == 0) 
-        fetched_sensor_data->battery.positive_tank_high_level_float = atoi(argv[i]);
-    else if(strcmp(azColName[i],"negative_tank_high_level_float") == 0) 
-        fetched_sensor_data->battery.negative_tank_high_level_float = atoi(argv[i]);
-    else if(strcmp(azColName[i],"positive_tank_low_level_float") == 0) 
-        fetched_sensor_data->battery.positive_tank_low_level_float = atoi(argv[i]);
-    else if(strcmp(azColName[i],"negative_tank_low_level_float") == 0) 
-        fetched_sensor_data->battery.negative_tank_low_level_float = atoi(argv[i]);
-    else if(strcmp(azColName[i],"primary_stack_voltage") == 0) 
-        fetched_sensor_data->battery.primary_stack_voltage = atof(argv[i]);
-    else if(strcmp(azColName[i],"primary_stack_current") == 0) 
-        fetched_sensor_data->battery.primary_stack_current = atof(argv[i]);
-    else if(strcmp(azColName[i],"primary_stack_positive_pressure_sensor") == 0) 
-        fetched_sensor_data->battery.primary_stack_positive_pressure_sensor = atof(argv[i]);
-    else if(strcmp(azColName[i],"primary_stack_negative_pressure_sensor") == 0) 
-        fetched_sensor_data->battery.primary_stack_negative_pressure_sensor = atof(argv[i]);
-
-    else if(strcmp(azColName[i],"positive_stack_pressure_delta") == 0)   // Modified on 11 Aug 21
-        fetched_sensor_data->battery.positive_stack_pressure_delta = atof(argv[i]);
-    else if(strcmp(azColName[i],"primary_stack_pressure_delta") == 0)   // Added on 11 Aug 21
-        fetched_sensor_data->battery.b1_primary_stack_pressure_delta = atof(argv[i]);
-
-    else if(strcmp(azColName[i],"sensor_temp") == 0) 
-        fetched_sensor_data->battery.sensor_temp = atof(argv[i]);
-    else if(strcmp(azColName[i],"humidity") == 0) 
-        fetched_sensor_data->battery.humidity = atof(argv[i]);
-
-    else if(strcmp(azColName[i],"pcs1_dc_volts") == 0)    // Added on 11 Aug 21
-        fetched_sensor_data->battery.pcs1_dc_volts = atof(argv[i]);
-    else if(strcmp(azColName[i],"pcs1_dc_batt_current") == 0)    // Added on 11 Aug 21
-        fetched_sensor_data->battery.pcs1_dc_batt_current = atof(argv[i]);
-    else if(strcmp(azColName[i],"pcs1_dc_inverter_power") == 0)    // Added on 11 Aug 21
-        fetched_sensor_data->battery.pcs1_dc_inverter_power = atof(argv[i]);
-
-    else if(strcmp(azColName[i],"pcs1_voltage") == 0) 
-        fetched_sensor_data->battery.pcs1_voltage = atof(argv[i]);
-    else if(strcmp(azColName[i],"pcs1_current") == 0) 
-        fetched_sensor_data->battery.pcs1_current = atof(argv[i]);
-    else if(strcmp(azColName[i],"pcs1_reactive_power") == 0) 
-        fetched_sensor_data->battery.pcs1_reactive_power = atof(argv[i]);
-    else if(strcmp(azColName[i],"pcs1_load_power") == 0) 
-        fetched_sensor_data->battery.pcs1_load_power = atof(argv[i]);
-    else if(strcmp(azColName[i],"pcs1_ac_supply_power") == 0) 
-        fetched_sensor_data->battery.pcs1_ac_supply_power = atof(argv[i]);
-
-    else if(strcmp(azColName[i],"pcs1_ac_out_status") == 0)    // Added on 11 Aug 21 
-        fetched_sensor_data->battery.pcs1_ac_out_status = atof(argv[i]);
-    else if(strcmp(azColName[i],"pcs1_fault_status") == 0)     // Added on 11 Aug 21
-        fetched_sensor_data->battery.pcs1_fault_status = atof(argv[i]);
-    else if(strcmp(azColName[i],"pcs1_fan_speed") == 0)     // Added on 11 Aug 21
-        fetched_sensor_data->battery.pcs1_fan_speed = atof(argv[i]);
-
-    else if(strcmp(azColName[i],"system0PVEnable") == 0)                            // Added 06-12-2021
-        fetched_sensor_data->battery.system0PVEnable = atof(argv[i]);               // Added 06-12-2021
-    else if(strcmp(azColName[i],"system0PVChargePower") == 0)                       // Added 06-12-2021
-        fetched_sensor_data->battery.system0PVChargePower = atof(argv[i]);          // Added 06-12-2021
-    else if(strcmp(azColName[i],"system0PVTotalPower") == 0)                        // Added 06-12-2021
-        fetched_sensor_data->battery.system0PVTotalPower = atof(argv[i]);           // Added 06-12-2021
-    else if(strcmp(azColName[i],"pcs1InvFreq") == 0)                                // Added 06-12-2021
-        fetched_sensor_data->battery.pcs1InvFreq = atof(argv[i]);                   // Added 06-12-2021
-    else if(strcmp(azColName[i],"pcs1InternalTemperature") == 0)                    // Added 06-12-2021
-        fetched_sensor_data->battery.pcs1InternalTemperature = atof(argv[i]);       // Added 06-12-2021
-    else if(strcmp(azColName[i],"bess1_voltage_gain") == 0)                         // Added by SeowSK
-        fetched_sensor_data->battery.bess1_voltage_gain = atof(argv[i]);                  // Added by SeowSK
-    else if(strcmp(azColName[i],"bess1_voltage_int") == 0)                          // Added by SeowSK
-        fetched_sensor_data->battery.bess1_voltage_int = atof(argv[i]);                   // Added by SeowSK
-    else if(strcmp(azColName[i],"bess2_voltage_gain") == 0)                         // Added by SeowSK
-        fetched_sensor_data->battery.bess2_voltage_gain = atof(argv[i]);                  // Added by SeowSK
-    else if(strcmp(azColName[i],"bess2_voltage_int") == 0)                          // Added by SeowSK
-        fetched_sensor_data->battery.bess2_voltage_int = atof(argv[i]);                   // Added by SeowSK
+        if(strcmp(azColName[i],"uptime") == 0)
+            fetched_sensor_data->uptime = atol(argv[i]);
+        else if(strcmp(azColName[i],"timeStamp") == 0)
+            fetched_sensor_data->timestamp = atol(argv[i]);
+        else if(strcmp(azColName[i],"timeStamp") == 0)
+            fetched_sensor_data->timestamp = atol(argv[i]);
+        else if(strcmp(azColName[i],"system_mode") == 0)
+        {
+            fetched_sensor_data->battery.system_mode = atoi(argv[i]);
+            printf("system_mode %lf\r\n",fetched_sensor_data->battery.system_mode);
+        }
+        else if(strcmp(azColName[i],"primary_charging_relay") == 0)
+            fetched_sensor_data->battery.primary_charging_relay = atof(argv[i]);
+        else if(strcmp(azColName[i],"primary_discharge_relay") == 0)
+            fetched_sensor_data->battery.primary_discharge_relay = atof(argv[i]);
+        else if(strcmp(azColName[i],"primary_positive_pump") == 0)
+            fetched_sensor_data->battery.primary_positive_pump = atof(argv[i]);
+        else if(strcmp(azColName[i],"primary_negative_pump") == 0)
+            fetched_sensor_data->battery.primary_negative_pump = atof(argv[i]);
+        else if(strcmp(azColName[i],"system_alarm_status") == 0)
+            fetched_sensor_data->battery.system_alarm_status = atof(argv[i]);
+        else if(strcmp(azColName[i],"balancing_valve") == 0)
+            fetched_sensor_data->battery.balancing_valve = atof(argv[i]);
+        else if(strcmp(azColName[i],"positive_valve") == 0)
+            fetched_sensor_data->battery.positive_valve = atof(argv[i]);
+        else if(strcmp(azColName[i],"negative_valve") == 0)
+            fetched_sensor_data->battery.negative_valve = atof(argv[i]);
+        else if(strcmp(azColName[i],"state_of_charge") == 0)
+            fetched_sensor_data->battery.state_of_charge = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_voltage") == 0)
+            fetched_sensor_data->battery.bcu_voltage = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_current") == 0)
+            fetched_sensor_data->battery.bcu_current = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_power") == 0)
+            fetched_sensor_data->battery.bcu_power = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_state_of_charge") == 0)
+            fetched_sensor_data->battery.bcu_state_of_charge = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_mode_status") == 0)
+            fetched_sensor_data->battery.bcu_mode_status = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_hydrogen_sensor") == 0)
+            fetched_sensor_data->battery.bcu_hydrogen_sensor = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_leakage_sensor") == 0)
+            fetched_sensor_data->battery.bcu_leakage_sensor = atof(argv[i]);
+        else if(strcmp(azColName[i],"smoke_sensor") == 0)
+            fetched_sensor_data->battery.smoke_sensor = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_ocv") == 0)
+            fetched_sensor_data->battery.bcu_ocv = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_positive_tank_temp") == 0)
+            fetched_sensor_data->battery.bcu_positive_tank_temp = atof(argv[i]);
+        else if(strcmp(azColName[i],"bcu_negative_tank_temp") == 0)
+            fetched_sensor_data->battery.bcu_negative_tank_temp = atof(argv[i]);
+        else if(strcmp(azColName[i],"positive_tank_high_level_float") == 0)
+            fetched_sensor_data->battery.positive_tank_high_level_float = atof(argv[i]);
+        else if(strcmp(azColName[i],"negative_tank_high_level_float") == 0)
+            fetched_sensor_data->battery.negative_tank_high_level_float = atof(argv[i]);
+        else if(strcmp(azColName[i],"positive_tank_low_level_float") == 0)
+            fetched_sensor_data->battery.positive_tank_low_level_float = atof(argv[i]);
+        else if(strcmp(azColName[i],"negative_tank_low_level_float") == 0)
+            fetched_sensor_data->battery.negative_tank_low_level_float = atof(argv[i]);
+        else if(strcmp(azColName[i],"primary_stack_voltage") == 0)
+            fetched_sensor_data->battery.primary_stack_voltage = atof(argv[i]);
+        else if(strcmp(azColName[i],"primary_stack_current") == 0)
+            fetched_sensor_data->battery.primary_stack_current = atof(argv[i]);
+        else if(strcmp(azColName[i],"primary_stack_positive_pressure_sensor") == 0)
+            fetched_sensor_data->battery.primary_stack_positive_pressure_sensor = atof(argv[i]);
+        else if(strcmp(azColName[i],"primary_stack_negative_pressure_sensor") == 0)
+            fetched_sensor_data->battery.primary_stack_negative_pressure_sensor = atof(argv[i]);
+        else if(strcmp(azColName[i],"positive_stack_pressure_delta") == 0)
+            fetched_sensor_data->battery.positive_stack_pressure_delta = atof(argv[i]);
+        else if(strcmp(azColName[i],"b1_primary_stack_pressure_delta") == 0)
+            fetched_sensor_data->battery.b1_primary_stack_pressure_delta = atof(argv[i]);
+        else if(strcmp(azColName[i],"sensor_temp") == 0)
+            fetched_sensor_data->battery.sensor_temp = atof(argv[i]);
+        else if(strcmp(azColName[i],"humidity") == 0)
+            fetched_sensor_data->battery.humidity = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_dc_volts") == 0)
+            fetched_sensor_data->battery.pcs1_dc_volts = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_dc_batt_current") == 0)
+            fetched_sensor_data->battery.pcs1_dc_batt_current = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_dc_inverter_power") == 0)
+            fetched_sensor_data->battery.pcs1_dc_inverter_power = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_voltage") == 0)
+            fetched_sensor_data->battery.pcs1_voltage = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_current") == 0)
+            fetched_sensor_data->battery.pcs1_current = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_reactive_power") == 0)
+            fetched_sensor_data->battery.pcs1_reactive_power = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_load_power") == 0)
+            fetched_sensor_data->battery.pcs1_load_power = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_ac_supply_power") == 0)
+            fetched_sensor_data->battery.pcs1_ac_supply_power = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_ac_out_status") == 0)
+            fetched_sensor_data->battery.pcs1_ac_out_status = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_fault_status") == 0)
+            fetched_sensor_data->battery.pcs1_fault_status = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1_fan_speed") == 0)
+            fetched_sensor_data->battery.pcs1_fan_speed = atof(argv[i]);
+        else if(strcmp(azColName[i],"system0PVEnable") == 0)
+            fetched_sensor_data->battery.system0PVEnable = atof(argv[i]);
+        else if(strcmp(azColName[i],"system0PVChargePower") == 0)
+            fetched_sensor_data->battery.system0PVChargePower = atof(argv[i]);
+        else if(strcmp(azColName[i],"system0PVTotalPower") == 0)
+            fetched_sensor_data->battery.system0PVTotalPower = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1InvFreq") == 0)
+            fetched_sensor_data->battery.pcs1InvFreq = atof(argv[i]);
+        else if(strcmp(azColName[i],"pcs1InternalTemperature") == 0)
+            fetched_sensor_data->battery.pcs1InternalTemperature = atof(argv[i]);
+        else if(strcmp(azColName[i],"bess_voltage_gain") == 0)
+            fetched_sensor_data->battery.bess_voltage_gain = atof(argv[i]);
+        else if(strcmp(azColName[i],"bess_voltage_int") == 0)
+            fetched_sensor_data->battery.bess_voltage_int = atof(argv[i]);
+        else if(strcmp(azColName[i],"lit_voltage_gain") == 0)
+            fetched_sensor_data->battery.lit_voltage_gain = atof(argv[i]);
+        else if(strcmp(azColName[i],"lit_voltage_int") == 0)
+            fetched_sensor_data->battery.lit_voltage_int = atof(argv[i]);
+        else if(strcmp(azColName[i],"mg_voltage_gain") == 0)
+            fetched_sensor_data->battery.mg_voltage_gain = atof(argv[i]);
+        else if(strcmp(azColName[i],"mg_voltage_int") == 0)
+            fetched_sensor_data->battery.mg_voltage_int = atof(argv[i]);
     }
 
     if(i==argc)
