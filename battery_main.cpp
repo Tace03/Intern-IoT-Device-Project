@@ -87,20 +87,36 @@ system_config sys_config;
 // Section 3
 // For modbus communication
 modbus_t *mbBMS;
+modbus_t *mbBESS;
+modbus_t *mbLit;
+modbus_t *mbMG;
 
 // modbus port of the communiting device
 int mbBMSPort       = 1502;
+int mbBESSPort      = 502;
+int mbLitPort       = 503;
+int mbMGPort        = 503;
 
 // For Checking if Modbus is connected for each device
 static bool isBMSModbusConn     = false;
+static bool isBESSModbusConn    = false;
+static bool isLitModbusConn     = false;
+static bool isMGModbusConn      = false;
 int noOfBMSModbusAttempts       = 0;
+int noOfBESSModbusAttempts      = 0;
+int noOfLitModbusAttempts       = 0;
+int noOfMGModbusAttempts        = 0;
 
 std::vector<sensor_config*> sensor_configuration;
-std::vector<sensor_config*> comap_configuration;
-std::vector<sensor_config*> comap2_configuration;
+std::vector<sensor_config*> BESS_configuration;
+std::vector<sensor_config*> Lit_configuration;
+std::vector<sensor_config*> MG_configuration;
 
 // For checking if all modbus variables are read
 uint16_t resCode    = 0;
+uint16_t resCode2   = 0;
+uint16_t resCode3   = 0;
+uint16_t resCode4   = 0;
 // End of Section 3
 //////////////////////////////////////////////////////////////////////////////////
 uint16_t sensor_value[2] ={0};
@@ -118,11 +134,11 @@ sensor_data db_sensor_data;
 
 bool sendDataFaster = false;
 
-const char * db_data = "/home/pi/Desktop/modbustcplogger/db_sensordata.db";
+const char * db_data = "/home/adv/Desktop/modbustcplogger/db_sensordata.db";
 sqlite3 * db;
 sqlite3_stmt *stmt;
 
-const char * db_statusdata = "/home/pi/Desktop/modbustcplogger/db_statusdata.db";
+const char * db_statusdata = "/home/adv/Desktop/modbustcplogger/db_statusdata.db";
 sqlite3 * dbErr;
 sqlite3_stmt *stmtErr;
 char errorMsg[255];
@@ -193,6 +209,108 @@ void reconnectToBMSModbus()
     else
     {
         printf("Do nothing to BMS MODBUS, should come back later. \r\n");
+    }
+}
+
+void reconnectToBESSModbus()
+{
+    if(mbBESS!= NULL)
+    {
+        modbus_close(mbBESS);
+        modbus_free(mbBESS);
+
+        mbBESS = modbus_new_tcp(sys_config.modbus_BESS_ip.c_str(), mbBESSPort);
+        modbus_set_slave(mbBESS, sys_config.modbus_BESS_slave_id);
+
+        if(mbBESS!= NULL)
+        {
+            if (modbus_connect(mbBESS) == -1)
+            {
+                fprintf(stdout, "BESS Modbus reConnection failed: %s\n", modbus_strerror(errno));
+                isBESSModbusConn = false;
+            }
+            else
+            {
+                printf("BESS Modbus connection successful.");
+                isBESSModbusConn = true;
+            }
+        }
+        else
+        {
+            printf("Could not connect over BESS MODBUS TCP. \r\n");
+        }
+    }
+    else
+    {
+        printf("Do nothing to BESS MODBUS, should come back later. \r\n");
+    }
+}
+
+void reconnectToLitModbus()
+{
+    if(mbLit!= NULL)
+    {
+        modbus_close(mbLit);
+        modbus_free(mbLit);
+
+        mbLit = modbus_new_tcp(sys_config.modbus_Lit_ip.c_str(), mbLitPort);
+        modbus_set_slave(mbLit, sys_config.modbus_Lit_slave_id);
+
+        if(mbLit!= NULL)
+        {
+            if (modbus_connect(mbLit) == -1)
+            {
+                fprintf(stdout, "Lit Modbus reConnection failed: %s\n", modbus_strerror(errno));
+                isLitModbusConn = false;
+            }
+            else
+            {
+                printf("Lit Modbus connection successful.");
+                isLitModbusConn = true;
+            }
+        }
+        else
+        {
+            printf("Could not connect over Lit MODBUS TCP. \r\n");
+        }
+    }
+    else
+    {
+        printf("Do nothing to Lit MODBUS, should come back later. \r\n");
+    }
+}
+
+void reconnectToMGModbus()
+{
+    if(mbMG!= NULL)
+    {
+        modbus_close(mbMG);
+        modbus_free(mbMG);
+
+        mbMG = modbus_new_tcp(sys_config.modbus_MG_ip.c_str(), mbMGPort);
+        modbus_set_slave(mbMG, sys_config.modbus_MG_slave_id);
+
+        if(mbMG!= NULL)
+        {
+            if (modbus_connect(mbMG) == -1)
+            {
+                fprintf(stdout, "MG Modbus reConnection failed: %s\n", modbus_strerror(errno));
+                isMGModbusConn = false;
+            }
+            else
+            {
+                printf("MG Modbus connection successful.");
+                isMGModbusConn = true;
+            }
+        }
+        else
+        {
+            printf("Could not connect over MG MODBUS TCP. \r\n");
+        }
+    }
+    else
+    {
+        printf("Do nothing to MG MODBUS, should come back later. \r\n");
     }
 }
 // End of Section 4
@@ -268,70 +386,24 @@ void populateSensorConfiguration()
     sensor_configuration.push_back(new sensor_config(69,reg_type::HOLDING_REG,0.01f,&(latest_battery_data.pcs1_reactive_power)));
     sensor_configuration.push_back(new sensor_config(74,reg_type::HOLDING_REG,0.01f,&(latest_battery_data.pcs1_load_power)));
     sensor_configuration.push_back(new sensor_config(68,reg_type::HOLDING_REG,0.01f,&(latest_battery_data.pcs1_ac_supply_power)));
-    /*
-    sensor_configuration.push_back(new sensor_config(248,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.primary_charging_relay)));
-    sensor_configuration.push_back(new sensor_config(250,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.primary_discharge_relay)));
-    sensor_configuration.push_back(new sensor_config(252,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.primary_positive_pump)));
-    sensor_configuration.push_back(new sensor_config(254,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.primary_negative_pump)));
+}
 
-    sensor_configuration.push_back(new sensor_config(316,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.system_mode)));  		    // Added on 11 Aug 21
-    sensor_configuration.push_back(new sensor_config(318,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.system_alarm_status)));  	// Modified on 11 Aug 21
+void populateBESSConfiguration()
+{
+    BESS_configuration.push_back(new sensor_config(3098,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.bess_voltage_gain)));
+    BESS_configuration.push_back(new sensor_config(3099,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.bess_voltage_int)));
+}
 
-    sensor_configuration.push_back(new sensor_config(340,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.balancing_valve)));
-    sensor_configuration.push_back(new sensor_config(342,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.positive_valve)));
-    sensor_configuration.push_back(new sensor_config(344,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.negative_valve)));
+void populateLitConfiguration()
+{
+    Lit_configuration.push_back(new sensor_config(3098,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.lit_voltage_gain)));
+    Lit_configuration.push_back(new sensor_config(3099,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.lit_voltage_int)));
+}
 
-    sensor_configuration.push_back(new sensor_config(398,reg_type::INPUT_REG,0.01f,&(latest_battery_data.state_of_charge)));
-
-    sensor_configuration.push_back(new sensor_config(688,reg_type::INPUT_REG,1.0f,&(latest_battery_data.bcu_mode_status)));  		// Added on 11 Aug 21
-
-    sensor_configuration.push_back(new sensor_config(690,reg_type::INPUT_REG,0.001f,&(latest_battery_data.bcu_voltage)));
-    sensor_configuration.push_back(new sensor_config(692,reg_type::INPUT_REG,0.01f,&(latest_battery_data.bcu_current))); 
-    sensor_configuration.push_back(new sensor_config(396,reg_type::INPUT_REG,0.01f,&(latest_battery_data.bcu_power))); 
-    sensor_configuration.push_back(new sensor_config(696,reg_type::INPUT_REG,0.01f,&(latest_battery_data.bcu_state_of_charge)));
-
-    sensor_configuration.push_back(new sensor_config(698,reg_type::INPUT_REG,0.01f,&(latest_battery_data.bcu_hydrogen_sensor))); 	// Added on 11 Aug 21
-    sensor_configuration.push_back(new sensor_config(700,reg_type::INPUT_REG,1.0f,&(latest_battery_data.bcu_leakage_sensor)));  	// Added on 11 Aug 21
-
-    sensor_configuration.push_back(new sensor_config(702,reg_type::INPUT_REG,1.0f,&(latest_battery_data.smoke_sensor)));
-    sensor_configuration.push_back(new sensor_config(704,reg_type::INPUT_REG,0.001f,&(latest_battery_data.bcu_ocv)));
-    sensor_configuration.push_back(new sensor_config(708,reg_type::INPUT_REG,0.01f,&(latest_battery_data.bcu_positive_tank_temp)));
-    sensor_configuration.push_back(new sensor_config(710,reg_type::INPUT_REG,0.01f,&(latest_battery_data.bcu_negative_tank_temp)));
-    sensor_configuration.push_back(new sensor_config(716,reg_type::INPUT_REG,1.0f,&(latest_battery_data.positive_tank_high_level_float)));
-    sensor_configuration.push_back(new sensor_config(718,reg_type::INPUT_REG,1.0f,&(latest_battery_data.negative_tank_high_level_float)));
-    sensor_configuration.push_back(new sensor_config(720,reg_type::INPUT_REG,1.0f,&(latest_battery_data.positive_tank_low_level_float)));
-    sensor_configuration.push_back(new sensor_config(722,reg_type::INPUT_REG,1.0f,&(latest_battery_data.negative_tank_low_level_float)));
-    sensor_configuration.push_back(new sensor_config(816,reg_type::INPUT_REG,0.001f,&(latest_battery_data.primary_stack_voltage)));
-    sensor_configuration.push_back(new sensor_config(818,reg_type::INPUT_REG,0.01f,&(latest_battery_data.primary_stack_current)));
-    sensor_configuration.push_back(new sensor_config(826,reg_type::INPUT_REG,0.01f,&(latest_battery_data.primary_stack_positive_pressure_sensor)));
-    sensor_configuration.push_back(new sensor_config(828,reg_type::INPUT_REG,0.01f,&(latest_battery_data.primary_stack_negative_pressure_sensor)));
-
-    sensor_configuration.push_back(new sensor_config(830,reg_type::INPUT_REG,0.01f,&(latest_battery_data.positive_stack_pressure_delta)));  	//modified positive with primary on 11 Aug 21
-    sensor_configuration.push_back(new sensor_config(924,reg_type::INPUT_REG,0.01f,&(latest_battery_data.b1_primary_stack_pressure_delta)));  	// Added on 11 Aug 21   
-
-    sensor_configuration.push_back(new sensor_config(1028,reg_type::INPUT_REG,0.01f,&(latest_battery_data.sensor_temp)));
-    sensor_configuration.push_back(new sensor_config(1030,reg_type::INPUT_REG,0.01f,&(latest_battery_data.humidity)));
-
-    sensor_configuration.push_back(new sensor_config(1184,reg_type::INPUT_REG,0.001f,&(latest_battery_data.pcs1_dc_volts))); 		    // Added on 11 Aug 21
-    sensor_configuration.push_back(new sensor_config(1186,reg_type::INPUT_REG,0.01f,&(latest_battery_data.pcs1_dc_batt_current))); 	    // Added on 11 Aug 21
-    sensor_configuration.push_back(new sensor_config(1188,reg_type::INPUT_REG,0.01f,&(latest_battery_data.pcs1_dc_inverter_power))); 	// Added on 11 Aug 21
-
-    sensor_configuration.push_back(new sensor_config(1190,reg_type::INPUT_REG,0.01f,&(latest_battery_data.pcs1_voltage)));
-    sensor_configuration.push_back(new sensor_config(1192,reg_type::INPUT_REG,0.01f,&(latest_battery_data.pcs1_current)));
-    sensor_configuration.push_back(new sensor_config(1196,reg_type::INPUT_REG,0.01f,&(latest_battery_data.pcs1_reactive_power)));
-    sensor_configuration.push_back(new sensor_config(1198,reg_type::INPUT_REG,0.01f,&(latest_battery_data.pcs1_load_power)));
-    sensor_configuration.push_back(new sensor_config(1200,reg_type::INPUT_REG,0.01f,&(latest_battery_data.pcs1_ac_supply_power)));
-
-    sensor_configuration.push_back(new sensor_config(1202,reg_type::INPUT_REG,1.0f,&(latest_battery_data.pcs1_ac_out_status)));     // Added on 11 Aug 21 
-    sensor_configuration.push_back(new sensor_config(1204,reg_type::INPUT_REG,1.0f,&(latest_battery_data.pcs1_fault_status)));      // Added on 11 Aug 21
-    sensor_configuration.push_back(new sensor_config(1206,reg_type::INPUT_REG,0.01f,&(latest_battery_data.pcs1_fan_speed)));        // Added on 11 Aug 21
-
-    sensor_configuration.push_back(new sensor_config(176,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.system0PVEnable)));
-    sensor_configuration.push_back(new sensor_config(194,reg_type::HOLDING_REG,0.01f,&(latest_battery_data.system0PVChargePower)));
-    sensor_configuration.push_back(new sensor_config(196,reg_type::HOLDING_REG,0.01f,&(latest_battery_data.system0PVTotalPower)));
-    sensor_configuration.push_back(new sensor_config(1218,reg_type::INPUT_REG,0.01f,&(latest_battery_data.pcs1InvFreq)));
-    sensor_configuration.push_back(new sensor_config(1222,reg_type::INPUT_REG,0.01f,&(latest_battery_data.pcs1InternalTemperature)));
-    */
+void populateMGConfiguration()
+{
+    MG_configuration.push_back(new sensor_config(3098,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.mg_voltage_gain)));
+    MG_configuration.push_back(new sensor_config(3099,reg_type::HOLDING_REG,1.0f,&(latest_battery_data.mg_voltage_int)));
 }
 // End of Section 5
 //////////////////////////////////////////////////////////////////////////////////
@@ -379,35 +451,39 @@ void printSensorData(sensor_data data)
     std::cout << std::setw(40) << "pcs1_load_power" << std::setw(15) << data.battery.pcs1_load_power << std::endl;
     std::cout << std::setw(40) << "pcs1_ac_supply_power" << std::setw(15) << data.battery.pcs1_ac_supply_power << std::endl;
     std::cout << "==================================================" << std::endl;
-    /*
-    printf("system_mode : [%1.0f]\r\n",data.battery.system_mode);                   // Added on 11 Aug 21
-    printf("system_alarm_status : [%1.0f]\r\n",data.battery.system_alarm_status);   // Added on 11 Aug 21
-
-    printf("bcu_mode_status : [%f]\r\n",data.battery.bcu_mode_status);              // Added on 11 Aug 21
-
-    printf("bcu_power : [%f]\r\n",data.battery.bcu_power);
-    printf("bcu_state_of_charge : [%f]\r\n",data.battery.bcu_state_of_charge);
-
-    printf("primary_stack_voltage : [%f]\r\n",data.battery.primary_stack_voltage);
-    printf("primary_stack_current : [%f]\r\n",data.battery.primary_stack_current);
-
-    printf("positive_stack_pressure_delta : [%f]\r\n",data.battery.positive_stack_pressure_delta);      // Modified on 11 Aug 21
-    printf("b1_primary_stack_pressure_delta : [%f]\r\n",data.battery.b1_primary_stack_pressure_delta);  // Added on 11 Aug 21
-
-    printf("pcs1_dc_volts : [%f]\r\n",data.battery.pcs1_dc_volts);                      // Added on 11 Aug 21
-    printf("pcs1_dc_batt_current : [%f]\r\n",data.battery.pcs1_dc_batt_current);        // Added on 11 Aug 21
-    printf("pcs1_dc_inverter_power : [%f]\r\n",data.battery.pcs1_dc_inverter_power);    // Added on 11 Aug 21
-
-    printf("pcs1_voltage : [%f]\r\n",data.battery.pcs1_voltage);
-    printf("pcs1_current : [%f]\r\n",data.battery.pcs1_current);
-    printf("pcs1_reactive_power : [%f]\r\n",data.battery.pcs1_reactive_power);
-    printf("pcs1_load_power : [%f]\r\n",data.battery.pcs1_load_power);
-    printf("pcs1_ac_supply_power : [%f]\r\n",data.battery.pcs1_ac_supply_power);
-
-    printf("pcs1_ac_out_status : [%f]\r\n",data.battery.pcs1_ac_out_status);        // Added on 11 Aug 21
-    printf("pcs1_fault_status : [%f]\r\n",data.battery.pcs1_fault_status);          // Added on 11 Aug 21
-    printf("pcs1_fan_speed : [%f]\r\n",data.battery.pcs1_fan_speed);                // Added on 11 Aug 21
-    */
+}
+void printBESSData(sensor_data data)
+{
+    std::cout << std::right;
+    std::cout << std::setfill('-');
+    std::cout << std::setw(45) << "BESS Data" << std::endl;
+    std::cout << std::setfill(' ');
+    std::cout << std::left;
+    std::cout << std::setw(40) << "voltage_gain" << std::setw(15) << data.battery.bess_voltage_gain << std::endl;
+    std::cout << std::setw(40) << "voltage_int" << std::setw(15) << data.battery.bess_voltage_int << std::endl;
+    std::cout << "==================================================" << std::endl;
+}
+void printLitData(sensor_data data)
+{
+    std::cout << std::right;
+    std::cout << std::setfill('-');
+    std::cout << std::setw(45) << "Lit Data" << std::endl;
+    std::cout << std::setfill(' ');
+    std::cout << std::left;
+    std::cout << std::setw(40) << "voltage_gain" << std::setw(15) << data.battery.lit_voltage_gain << std::endl;
+    std::cout << std::setw(40) << "voltage_int" << std::setw(15) << data.battery.lit_voltage_int << std::endl;
+    std::cout << "==================================================" << std::endl;
+}
+void printMGData(sensor_data data)
+{
+    std::cout << std::right;
+    std::cout << std::setfill('-');
+    std::cout << std::setw(45) << "MG Data" << std::endl;
+    std::cout << std::setfill(' ');
+    std::cout << std::left;
+    std::cout << std::setw(40) << "voltage_gain" << std::setw(15) << data.battery.mg_voltage_gain << std::endl;
+    std::cout << std::setw(40) << "voltage_int" << std::setw(15) << data.battery.mg_voltage_int << std::endl;
+    std::cout << "==================================================" << std::endl;
 }
 // End of Section 6
 //////////////////////////////////////////////////////////////////////////////////
@@ -441,11 +517,6 @@ void probeBMSSensors()
             }
             else
             {
-                // printf(" sensor_value : [%d]\r\n",(int16_t)sensor_value[0]);
-                // *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
-                // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
-                // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
-
                 if(current_reg->noOfRegsToRead == 1)
                 {
                     float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);
@@ -510,6 +581,294 @@ void probeBMSSensors()
         printf("BMS Modbus is not connected. Trying to reconnect!\r\n");
         reconnectToBMSModbus();
         noOfBMSModbusAttempts = 0;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(sys_config.modbus_data_read_interval));
+}
+
+void probeBESSSensors()
+{
+    if(isBESSModbusConn)
+    {
+        // printf("Probing sensors to read modbus data\r\n");
+
+        for(resCode2 = 0; resCode2 < BESS_configuration.size(); resCode2++)
+        {
+            sensor_config* current_reg = BESS_configuration.at(resCode2); 
+            int addr = (current_reg->reg_offset);
+            int readCode = 0;
+
+            if(current_reg->regType == reg_type::HOLDING_REG)
+            {
+                readCode = modbus_read_registers(mbBESS, addr , current_reg->noOfRegsToRead, sensor_value);
+            }
+            else 
+            {
+                readCode = modbus_read_input_registers(mbBESS, addr , current_reg->noOfRegsToRead, sensor_value);
+            }
+            if(readCode == -1)
+            {
+                printf("ERROR: %s\n", modbus_strerror(errno));
+                isBESSModbusConn = false;
+                break;
+            }
+            else
+            {
+                if(current_reg->noOfRegsToRead == 1)
+                {
+                    float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);
+                    if(current_reg->valueType == data_type::DT_BOOL)
+                    {
+                        *(current_reg->dest_bool_ptr) = (bool)sensor_value[0];
+                    }
+                    if(current_reg->valueType == data_type::DT_INT16)
+                    {
+                        *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
+                    //   printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
+                    }
+                    if(current_reg->valueType == data_type::DT_FLOAT)
+                    {
+                        float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);  
+                        // *(current_reg->dest_float_ptr) = (float)sensor_value[0];
+                        *(current_reg->dest_float_ptr) = scaledValue;
+                        // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
+                    }
+                    if(current_reg->valueType == data_type::DT_INT32)
+                    {
+                        *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
+                        // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
+                    }
+                }
+                else if(current_reg->noOfRegsToRead == 2)
+                {
+                    float scaledValue = ((((int32_t)sensor_value[0] << 16) | sensor_value[1])*current_reg->scale);
+                    if(current_reg->valueType == data_type::DT_UINT32)
+                    {
+                        *(current_reg->dest_int32_ptr) = (int32_t)scaledValue;
+                    }
+                    else if(current_reg->valueType == data_type::DT_FLOAT)
+                    {
+                        *(current_reg->dest_float_ptr) = scaledValue;
+                    } 
+                    else if(current_reg->valueType == data_type::DT_BOOL)
+                    {
+                        *(current_reg->dest_bool_ptr) = (bool)scaledValue;
+                    }
+                }
+            }
+        }
+    }
+    else if(noOfBESSModbusAttempts < sys_config.noOfModbusAttemptsAllowed)
+    {
+        // Will be unlocked in mtx_error_msg
+        mtx_error_msg.lock();
+        sprintf(errorMsg, "BESS Modbus Read Failed. Trying another attempt! Line No %d", __LINE__);
+        logErrorInDB();
+
+        printf("BESS Modbus Read Failed. Trying another attempt!\r\n");
+        noOfBESSModbusAttempts++;
+    }  
+    else
+    {
+        // we have reached the limit for no of attempts... sleep for a while and then try again
+        mtx_error_msg.lock();
+        sprintf(errorMsg, "BESS Modbus might not be connected. Trying to reconnect! Line No %d", __LINE__);
+        logErrorInDB();
+
+        printf("BESS Modbus is not connected. Trying to reconnect!\r\n");
+        reconnectToBESSModbus();
+        noOfBESSModbusAttempts = 0;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(sys_config.modbus_data_read_interval));
+}
+
+void probeLitSensors()
+{
+    if(isLitModbusConn)
+    {
+        // printf("Probing sensors to read modbus data\r\n");
+
+        for(resCode3 = 0; resCode3 < Lit_configuration.size(); resCode3++)
+        {
+            sensor_config* current_reg = Lit_configuration.at(resCode3); 
+            int addr = (current_reg->reg_offset);
+            int readCode = 0;
+
+            if(current_reg->regType == reg_type::HOLDING_REG)
+            {
+                readCode = modbus_read_registers(mbLit, addr , current_reg->noOfRegsToRead, sensor_value);
+            }
+            else 
+            {
+                readCode = modbus_read_input_registers(mbLit, addr , current_reg->noOfRegsToRead, sensor_value);
+            }
+            if(readCode == -1)
+            {
+                printf("ERROR: %s\n", modbus_strerror(errno));
+                isLitModbusConn = false;
+                break;
+            }
+            else
+            {
+                if(current_reg->noOfRegsToRead == 1)
+                {
+                    float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);
+                    if(current_reg->valueType == data_type::DT_BOOL)
+                    {
+                        *(current_reg->dest_bool_ptr) = (bool)sensor_value[0];
+                    }
+                    if(current_reg->valueType == data_type::DT_INT16)
+                    {
+                        *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
+                    //   printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
+                    }
+                    if(current_reg->valueType == data_type::DT_FLOAT)
+                    {
+                        float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);  
+                        // *(current_reg->dest_float_ptr) = (float)sensor_value[0];
+                        *(current_reg->dest_float_ptr) = scaledValue;
+                        // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
+                    }
+                    if(current_reg->valueType == data_type::DT_INT32)
+                    {
+                        *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
+                        // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
+                    }
+                }
+                else if(current_reg->noOfRegsToRead == 2)
+                {
+                    float scaledValue = ((((int32_t)sensor_value[0] << 16) | sensor_value[1])*current_reg->scale);
+                    if(current_reg->valueType == data_type::DT_UINT32)
+                    {
+                        *(current_reg->dest_int32_ptr) = (int32_t)scaledValue;
+                    }
+                    else if(current_reg->valueType == data_type::DT_FLOAT)
+                    {
+                        *(current_reg->dest_float_ptr) = scaledValue;
+                    } 
+                    else if(current_reg->valueType == data_type::DT_BOOL)
+                    {
+                        *(current_reg->dest_bool_ptr) = (bool)scaledValue;
+                    }
+                }
+            }
+        }
+    }
+    else if(noOfLitModbusAttempts < sys_config.noOfModbusAttemptsAllowed)
+    {
+        // Will be unlocked in mtx_error_msg
+        mtx_error_msg.lock();
+        sprintf(errorMsg, "Lit Modbus Read Failed. Trying another attempt! Line No %d", __LINE__);
+        logErrorInDB();
+
+        printf("Lit Modbus Read Failed. Trying another attempt!\r\n");
+        noOfLitModbusAttempts++;
+    }  
+    else
+    {
+        // we have reached the limit for no of attempts... sleep for a while and then try again
+        mtx_error_msg.lock();
+        sprintf(errorMsg, "Lit Modbus might not be connected. Trying to reconnect! Line No %d", __LINE__);
+        logErrorInDB();
+
+        printf("Lit Modbus is not connected. Trying to reconnect!\r\n");
+        reconnectToLitModbus();
+        noOfLitModbusAttempts = 0;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(sys_config.modbus_data_read_interval));
+}
+
+void probeMGSensors()
+{
+    if(isMGModbusConn)
+    {
+        // printf("Probing sensors to read modbus data\r\n");
+
+        for(resCode4 = 0; resCode4 < MG_configuration.size(); resCode4++)
+        {
+            sensor_config* current_reg = MG_configuration.at(resCode4); 
+            int addr = (current_reg->reg_offset);
+            int readCode = 0;
+
+            if(current_reg->regType == reg_type::HOLDING_REG)
+            {
+                readCode = modbus_read_registers(mbMG, addr , current_reg->noOfRegsToRead, sensor_value);
+            }
+            else 
+            {
+                readCode = modbus_read_input_registers(mbMG, addr , current_reg->noOfRegsToRead, sensor_value);
+            }
+            if(readCode == -1)
+            {
+                printf("ERROR: %s\n", modbus_strerror(errno));
+                isMGModbusConn = false;
+                break;
+            }
+            else
+            {
+                if(current_reg->noOfRegsToRead == 1)
+                {
+                    float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);
+                    if(current_reg->valueType == data_type::DT_BOOL)
+                    {
+                        *(current_reg->dest_bool_ptr) = (bool)sensor_value[0];
+                    }
+                    if(current_reg->valueType == data_type::DT_INT16)
+                    {
+                        *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
+                    //   printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
+                    }
+                    if(current_reg->valueType == data_type::DT_FLOAT)
+                    {
+                        float scaledValue = (((int16_t)sensor_value[0])*current_reg->scale);  
+                        // *(current_reg->dest_float_ptr) = (float)sensor_value[0];
+                        *(current_reg->dest_float_ptr) = scaledValue;
+                        // printf("*(current_reg->dest_float_ptr) : [%f]\r\n",*(current_reg->dest_float_ptr));
+                    }
+                    if(current_reg->valueType == data_type::DT_INT32)
+                    {
+                        *(current_reg->dest_int32_ptr) = (int16_t)sensor_value[0];
+                        // printf("*(current_reg->dest_int32_ptr) : [%d]\r\n",*(current_reg->dest_int32_ptr));
+                    }
+                }
+                else if(current_reg->noOfRegsToRead == 2)
+                {
+                    float scaledValue = ((((int32_t)sensor_value[0] << 16) | sensor_value[1])*current_reg->scale);
+                    if(current_reg->valueType == data_type::DT_UINT32)
+                    {
+                        *(current_reg->dest_int32_ptr) = (int32_t)scaledValue;
+                    }
+                    else if(current_reg->valueType == data_type::DT_FLOAT)
+                    {
+                        *(current_reg->dest_float_ptr) = scaledValue;
+                    } 
+                    else if(current_reg->valueType == data_type::DT_BOOL)
+                    {
+                        *(current_reg->dest_bool_ptr) = (bool)scaledValue;
+                    }
+                }
+            }
+        }
+    }
+    else if(noOfMGModbusAttempts < sys_config.noOfModbusAttemptsAllowed)
+    {
+        // Will be unlocked in mtx_error_msg
+        mtx_error_msg.lock();
+        sprintf(errorMsg, "MG Modbus Read Failed. Trying another attempt! Line No %d", __LINE__);
+        logErrorInDB();
+
+        printf("MG Modbus Read Failed. Trying another attempt!\r\n");
+        noOfMGModbusAttempts++;
+    }  
+    else
+    {
+        // we have reached the limit for no of attempts... sleep for a while and then try again
+        mtx_error_msg.lock();
+        sprintf(errorMsg, "MG Modbus might not be connected. Trying to reconnect! Line No %d", __LINE__);
+        logErrorInDB();
+
+        printf("MG Modbus is not connected. Trying to reconnect!\r\n");
+        reconnectToMGModbus();
+        noOfMGModbusAttempts = 0;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(sys_config.modbus_data_read_interval));
 }
@@ -810,15 +1169,24 @@ void read_system_config()
     json system_json_config;
     cout<<"Reading"<<endl;
     // read a JSON file
-    std::ifstream i("/home/pi/Desktop/modbustcplogger/config.json");
+    std::ifstream i("/home/adv/Desktop/modbustcplogger/config.json");
     i >> system_json_config;
 
-    string modbus_BMS_ip = system_json_config["modbus_ip"];
+    string modbus_BMS_ip = system_json_config["modbus_BMS_ip"];
+    string modbus_BESS_ip = system_json_config["modbus_BESS_ip"];
+    string modbus_Lit_ip = system_json_config["modbus_Lit_ip"];
+    string modbus_MG_ip = system_json_config["modbus_MG_ip"];
     string mads_auth_token = system_json_config["mads_auth_token"];
     string mads_url = system_json_config["mads_url"];
 
     sys_config.modbus_BMS_ip = modbus_BMS_ip;
-    sys_config.modbus_BMS_slave_id = system_json_config["modbus_slave_id"];
+    sys_config.modbus_BMS_slave_id = system_json_config["modbus_BMS_slave_id"];
+    sys_config.modbus_BESS_ip = modbus_BESS_ip;
+    sys_config.modbus_BESS_slave_id = system_json_config["modbus_BESS_slave_id"];
+    sys_config.modbus_Lit_ip = modbus_Lit_ip;
+    sys_config.modbus_Lit_slave_id = system_json_config["modbus_Lit_slave_id"];
+    sys_config.modbus_MG_ip = modbus_MG_ip;
+    sys_config.modbus_MG_slave_id = system_json_config["modbus_MG_slave_id"];
     sys_config.noOfModbusAttemptsAllowed = system_json_config["noOfModbusAttemptsAllowed"];
     sys_config.modbus_data_read_interval = system_json_config["modbus_data_read_interval"];
     sys_config.mads_auth_token = mads_auth_token;
@@ -884,11 +1252,17 @@ void sensorsProbing (void)
 //////////////////////////////////////////////////////////////////////////////////
 // Section 8.1
         probeBMSSensors();
+        probeBESSSensors();
+        probeLitSensors();
+        probeMGSensors();
 // End of Section 8.1
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 // Section 8.2
-        if(resCode == sensor_configuration.size() && isBMSModbusConn)
+        if((resCode == sensor_configuration.size() && isBMSModbusConn) || 
+            (resCode2 == BESS_configuration.size() && isBESSModbusConn) || 
+            (resCode3 == Lit_configuration.size() && isLitModbusConn) ||
+            (resCode3 == MG_configuration.size() && isMGModbusConn))
 // End of Section 8.2
 //////////////////////////////////////////////////////////////////////////////////
         {
@@ -902,6 +1276,30 @@ void sensorsProbing (void)
 
                 printf("Probed Sensors, system uptime: [%ld] isBMSModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isBMSModbusConn, markToSent);
                 printSensorData(actual_sensor_data);
+            }
+            if(resCode2 == BESS_configuration.size())
+            {
+                resCode2 = 0;
+                noOfBESSModbusAttempts = 0;
+
+                printf("Probed Sensors, system uptime: [%ld] isBESSModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isBESSModbusConn, markToSent);
+                printBESSData(actual_sensor_data);
+            }
+            if(resCode3 == Lit_configuration.size())
+            {
+                resCode3 = 0;
+                noOfLitModbusAttempts = 0;
+
+                printf("Probed Sensors, system uptime: [%ld] isLitModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isLitModbusConn, markToSent);
+                printLitData(actual_sensor_data);
+            }
+            if(resCode4 == MG_configuration.size())
+            {
+                resCode4 = 0;
+                noOfMGModbusAttempts = 0;
+
+                printf("Probed Sensors, system uptime: [%ld] isMGModbusConn: [%d] markToSent: [%d]\r\n", actual_sensor_data.uptime, isMGModbusConn, markToSent);
+                printMGData(actual_sensor_data);
             }
 // End of Section 8.3
 //////////////////////////////////////////////////////////////////////////////////
@@ -947,6 +1345,12 @@ int main(void)
     cout << "----------------Current Configuration--------------" << endl;
     cout << "BMS Modbus IP address: " << sys_config.modbus_BMS_ip << endl;
     cout << "BMS Modbus Slave ID: " << sys_config.modbus_BMS_slave_id << endl;
+    cout << "BESS Modbus IP address: " << sys_config.modbus_BESS_ip << endl;
+    cout << "BESS Modbus Slave ID: " << sys_config.modbus_BESS_slave_id << endl;
+    cout << "LiT Modbus IP address: " << sys_config.modbus_Lit_ip << endl;
+    cout << "LiT Modbus Slave ID: " << sys_config.modbus_Lit_slave_id << endl;
+    cout << "MG Modbus IP address: " << sys_config.modbus_MG_ip << endl;
+    cout << "MG Modbus Slave ID: " << sys_config.modbus_MG_slave_id << endl;
     cout << "No of Modbus attempts allowed before reconnecting: " << sys_config.noOfModbusAttemptsAllowed << endl;
     cout << "Modbus data read interval: " << sys_config.modbus_data_read_interval << endl;
     cout << "MADS Authorization Bearer Token: " << sys_config.mads_auth_token << endl;
@@ -961,6 +1365,15 @@ int main(void)
 // Section 9
     mbBMS = modbus_new_tcp(sys_config.modbus_BMS_ip.c_str(), mbBMSPort);
     modbus_set_slave(mbBMS,sys_config.modbus_BMS_slave_id);
+
+    mbBESS = modbus_new_tcp(sys_config.modbus_BESS_ip.c_str(), mbBESSPort);
+    modbus_set_slave(mbBESS,sys_config.modbus_BESS_slave_id);
+
+    mbLit = modbus_new_tcp(sys_config.modbus_Lit_ip.c_str(), mbLitPort);
+    modbus_set_slave(mbLit,sys_config.modbus_Lit_slave_id);
+
+    mbMG = modbus_new_tcp(sys_config.modbus_MG_ip.c_str(), mbMGPort);
+    modbus_set_slave(mbMG,sys_config.modbus_MG_slave_id);
 
     if (modbus_connect(mbBMS) == -1) 
     {
@@ -977,7 +1390,55 @@ int main(void)
         isBMSModbusConn = true;
     }
 
+    if (modbus_connect(mbBESS) == -1) 
+    {
+        fprintf(stdout, "BESS Modbus connection failed: %s\n", modbus_strerror(errno));
+        isBESSModbusConn = false;
+
+        mtx_error_msg.lock();
+        sprintf(errorMsg, "BESS Modbus connection failed: %s Line No %d", modbus_strerror(errno), __LINE__);
+        logErrorInDB();
+    }
+    else
+    {
+        printf("Sucessful BESS Modbus connection.\n");
+        isBESSModbusConn = true;
+    }
+
+    if (modbus_connect(mbLit) == -1) 
+    {
+        fprintf(stdout, "Lit Modbus connection failed: %s\n", modbus_strerror(errno));
+        isLitModbusConn = false;
+
+        mtx_error_msg.lock();
+        sprintf(errorMsg, "Lit Modbus connection failed: %s Line No %d", modbus_strerror(errno), __LINE__);
+        logErrorInDB();
+    }
+    else
+    {
+        printf("Sucessful Lit Modbus connection.\n");
+        isLitModbusConn = true;
+    }
+
+    if (modbus_connect(mbMG) == -1) 
+    {
+        fprintf(stdout, "MG Modbus connection failed: %s\n", modbus_strerror(errno));
+        isMGModbusConn = false;
+
+        mtx_error_msg.lock();
+        sprintf(errorMsg, "MG Modbus connection failed: %s Line No %d", modbus_strerror(errno), __LINE__);
+        logErrorInDB();
+    }
+    else
+    {
+        printf("Sucessful MG Modbus connection.\n");
+        isMGModbusConn = true;
+    }
+
     populateSensorConfiguration();
+    populateBESSConfiguration();
+    populateLitConfiguration();
+    populateMGConfiguration();
 
     printf("Sensor Configuration populated\n\r");
 // End of Section 9
