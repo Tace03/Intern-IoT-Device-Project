@@ -186,7 +186,7 @@ class sensor_config
             {
                 this->dest_int32_ptr = (int *) dest_float_ptr;
             }
-            else if ( this->valueType == DT_FLOAT)
+            else if (this->valueType == DT_FLOAT)
             {
                 this->dest_float_ptr = dest_float_ptr;
             }
