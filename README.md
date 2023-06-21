@@ -4,7 +4,7 @@ July'2021 - ModbusTCPLogger v1.0
 
 Steps for code deployment
 ------------------------------------------------------------------------
-ád
+
 Steps to deploy to linux machine.
 - The following steps will use a Raspberry PI machine as examples.
 
